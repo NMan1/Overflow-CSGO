@@ -1,0 +1,34 @@
+#pragma once
+
+#include <windows.h>
+#include <iostream>
+#include <cstdint>
+#include <memory>
+#include <vector>
+#include <thread>
+#include <chrono>
+#include <array>
+#include <fstream>
+#include <istream>
+#include <unordered_map>
+#include <intrin.h>
+#include <filesystem>
+#include <experimental/filesystem>
+
+#include "../core/menu/imgui/imgui.h"
+#include "../core/menu/imgui/dx9/imgui_impl_dx9.h"
+#include "utilities/singleton.hpp"
+#include "utilities/fnv.hpp"
+#include "utilities/md5/md5.hpp"
+#include "utilities/utilities.hpp"
+#include "../dependencies/minhook/minhook.h"
+#include "interfaces/interfaces.hpp"
+#include "../source-sdk/sdk.hpp"
+#include "../core/hooks/hooks.hpp"
+#include "../dependencies/math/math.hpp"
+#include "../dependencies/utilities/renderer/renderer.hpp"
+#include "../dependencies/utilities/console/console.hpp"
+#include "utilities/csgo.hpp"
+#include "../source-sdk/math/vector3d.hpp"
+#include "../core/menu/menu.h"
+#include "../dependencies/interfaces/I_client_mode.h"
