@@ -2,6 +2,11 @@
 # Internal CSGO cheat - work in progress
 #### I work on this when im bored so there may or may not be updates. Its goal is to be an HvH cheat but currently its only got legit stuff.
 
+Written in snake case (for the most part, %95)
+
+Base used:
+https://github.com/designer1337/csgo-cheat-base
+
 # Menu:
 
 <img src="https://i.gyazo.com/18b0c42303aeec8135d76dad8ab2cff7.png"/>  
