@@ -45,6 +45,17 @@ const char* trigger_bone[] =
 	"Chest + Stomach"
 };
 
+const char* chams_type[] =
+{
+	"Textured",
+	"Metallic",
+	"Flat",
+	"Dark Chrome",
+	"Glow",
+	"Crystal"
+	"Wildfire"
+};
+
 int active = -1;
 
 namespace ImGui
@@ -487,6 +498,10 @@ void Menu::visuals_tab()
 		ImGui::Checkbox("Enable Chams", &menu.config.chams);
 		ImGui::ColorEdit4("chams color", menu.config.f_chams_clr, ImGuiColorEditFlags_NoInputs);
 		ImGui::Checkbox("Show Team", &menu.config.team_check_chams);
+		ImGui::Checkbox("Local Chams", &menu.config.local_chams);
+		ImGui::Checkbox("Wireframe", &menu.config.wireframe);
+		ImGui::Text("Chams Material");
+		ImGui::Combo("##Chams Material", &menu.config.chams_type, chams_type, IM_ARRAYSIZE(chams_type));
 
 	} ImGui::EndChild(true, menu.font_child_title, main_red);
 	ImGui::Custom::ChildSettingsEnd();

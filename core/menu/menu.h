@@ -287,6 +287,9 @@ public:
 		// add at end
 		float f_chams_clr[4] = { 1.f, 0.411f, 0.705f, 1.f };
 		color chams_clr = color(255, 105, 180);
+		int chams_type = 0;
+		bool local_chams;
+		bool wireframe;
 	};
 	Config config;
 
