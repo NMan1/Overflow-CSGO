@@ -69,14 +69,6 @@ void custom_materials()
       "$reflectivity" "1"
 	  "$phong" "1"
 	  "$rimlight" "1"
-	"$envmap"    "env_cubemap"
-	"$envmaptint" "[.3 .3 .3]" //change this for diff colors etc (that's the metallic part btw)
-	"$envmapcontrast" "1"
-	"$envmapsaturation" "1.0"
-	"$phong" "1"
-	"$phongexponent" "15.0" //change this for the amount of material covered in shine
-	"$normalmapalphaenvmask" "1"
-	"$phongboost"                "6.0" //change this for the shine brightness
 }
 )#";
 
@@ -111,11 +103,10 @@ void custom_materials()
 )#";
 }
 
-void features::visuals::chams_run(hooks::dme::fn original, void* thisptr, void* context, void* state, const model_render_info_t& info, matrix3x4_t* custom_bone_to_world)
+void features::visuals::dme_chams_run(hooks::dme::fn original, void* thisptr, void* context, void* state, const model_render_info_t& info, matrix3x4_t* custom_bone_to_world)
 {
 	if (!menu.config.chams)
 		return original(thisptr, context, state, info, custom_bone_to_world);
-
 
 	if (!interfaces::engine->is_in_game() || !interfaces::engine->is_connected())
 		return original(thisptr, context, state, info, custom_bone_to_world);
@@ -172,6 +163,7 @@ void features::visuals::chams_run(hooks::dme::fn original, void* thisptr, void* 
 		{
 			interfaces::render_view->set_blend(menu.config.f_chams_clr[3]);
 			interfaces::render_view->modulate_color(menu.config.f_chams_clr);
+			mat->set_material_var_flag(material_var_ignorez, menu.config.chams_xqz);
 			interfaces::model_render->override_material(mat);
 		}	
 
@@ -180,14 +172,16 @@ void features::visuals::chams_run(hooks::dme::fn original, void* thisptr, void* 
 		{
 			interfaces::render_view->set_blend(menu.config.f_chams_clr[3]);
 			interfaces::render_view->modulate_color(menu.config.f_chams_clr);
+			mat->set_material_var_flag(material_var_ignorez, menu.config.chams_xqz);
 			interfaces::model_render->override_material(mat);
 		}
 
 		// local
 		if (menu.config.local_chams && entity == local_player)
 		{
-			interfaces::render_view->set_blend(menu.config.f_chams_clr[3]);
-			interfaces::render_view->modulate_color(menu.config.f_chams_clr);
+			interfaces::render_view->set_blend(menu.config.f_chams_local_clr[3]);
+			interfaces::render_view->modulate_color(menu.config.f_chams_local_clr);
+			mat->set_material_var_flag(material_var_ignorez, menu.config.chams_xqz);
 			interfaces::model_render->override_material(mat);
 		}
 
@@ -201,5 +195,98 @@ void features::visuals::chams_run(hooks::dme::fn original, void* thisptr, void* 
 	}
 	original(thisptr, context, state, info, custom_bone_to_world);
 	interfaces::model_render->override_material(nullptr);
+}
+
+void features::visuals::scene_chams_run()
+{
+	if (!menu.config.chams)
+		return;
+
+	if (!interfaces::engine->is_in_game() || !interfaces::engine->is_connected())
+		return;
+
+	auto local_player = reinterpret_cast<player_t*>(interfaces::entity_list->get_client_entity(interfaces::engine->get_local_player()));
+	if (!local_player)
+		return;
+
+	// get our entity
+	for (int i = 0; i < interfaces::globals->max_clients; i++)
+	{
+		auto entity = reinterpret_cast<player_t*>(interfaces::entity_list->get_client_entity(i));
+		if (!entity || !entity->is_alive() || entity->dormant())
+			return;
+
+		static bool create = true;
+		if (create)
+		{
+			custom_materials();
+			create = false;
+		}
+
+		static int index;
+		static i_material* mat = nullptr;
+		if (!mat || index != menu.config.chams_type)
+			switch (menu.config.chams_type)
+			{
+			case 0:
+				mat = interfaces::material_system->find_material("sensum_regular", TEXTURE_GROUP_MODEL); index = menu.config.chams_type; break;
+			case 1:
+				mat = interfaces::material_system->find_material("sensum_reflective", TEXTURE_GROUP_MODEL, true, nullptr); index = menu.config.chams_type; break;
+			case 2:
+				mat = interfaces::material_system->find_material("sensum_flat", TEXTURE_GROUP_MODEL); index = menu.config.chams_type; break;
+			case 3:
+				mat = interfaces::material_system->find_material("models/gibs/glass/glass", TEXTURE_GROUP_OTHER); index = menu.config.chams_type; break;
+			case 4:
+				mat = interfaces::material_system->find_material("models/inventory_items/dogtags/dogtags_outline", TEXTURE_GROUP_MODEL); index = menu.config.chams_type; break;
+			case 5:
+				mat = interfaces::material_system->find_material("models/inventory_items/trophy_majors/crystal_clear", TEXTURE_GROUP_OTHER); index = menu.config.chams_type; break;
+			case 6:
+				mat = interfaces::material_system->find_material("models/inventory_items/wildfire_gold/wildfire_gold_detail", TEXTURE_GROUP_OTHER); index = menu.config.chams_type; break;
+			default:
+				index = menu.config.chams_type; break;
+			}
+
+		if (!mat || mat->is_error_material())
+			return;
+
+		mat->increment_reference_count();
+		mat->set_material_var_flag(material_var_wireframe, menu.config.wireframe);
+
+		// team
+		if (entity->team() == local_player->team() && menu.config.team_check_chams)
+		{
+			interfaces::render_view->set_blend(menu.config.f_chams_clr[3]);
+			interfaces::render_view->modulate_color(menu.config.f_chams_clr);
+			interfaces::model_render->override_material(mat);
+			entity->draw_model(0x1, 255);
+		}
+
+		// enemy
+		if (entity->team() != local_player->team())
+		{
+			interfaces::render_view->set_blend(menu.config.f_chams_clr[3]);
+			interfaces::render_view->modulate_color(menu.config.f_chams_clr);
+			interfaces::model_render->override_material(mat);
+			entity->draw_model(0x1, 255);
+		}
+
+		// local
+		if (menu.config.local_chams && entity == local_player)
+		{
+			interfaces::render_view->set_blend(menu.config.f_chams_clr[3]);
+			interfaces::render_view->modulate_color(menu.config.f_chams_clr);
+			interfaces::model_render->override_material(mat);
+			entity->draw_model(0x1, 255);
+		}
+
+		// glow
+		if (menu.config.chams_type == 4)
+		{
+			interfaces::model_render->override_material(mat);
+			entity->draw_model(0x1, 255);
+		}
+
+		interfaces::model_render->override_material(nullptr);
+	}
 }
 

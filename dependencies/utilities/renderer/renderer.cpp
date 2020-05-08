@@ -5,7 +5,7 @@ unsigned long render::fonts::watermark_font;
 unsigned long render::fonts::verdana_font_small;
 unsigned long render::fonts::verdana_font;
 unsigned long render::fonts::verdana_font_large;
-unsigned long render::fonts::name_font;
+unsigned long render::fonts::weapon_font;
 
 void render::initialize() 
 {
@@ -13,11 +13,13 @@ void render::initialize()
 	render::fonts::verdana_font = interfaces::surface->font_create();
 	render::fonts::verdana_font_small = interfaces::surface->font_create();
 	render::fonts::verdana_font_large = interfaces::surface->font_create();
+	render::fonts::weapon_font = interfaces::surface->font_create();
 
 	interfaces::surface->set_font_glyph(render::fonts::verdana_font_small, "Tahoma", 11, 800, 0, 0, font_flags::fontflag_antialias); //300 
 	interfaces::surface->set_font_glyph(render::fonts::verdana_font, "Verdana", 12, 800, 0, 0, font_flags::fontflag_antialias); //300 
 	interfaces::surface->set_font_glyph(render::fonts::verdana_font_large, "Verdana", 14, 28, 0, 0, font_flags::fontflag_antialias); //300 
 	interfaces::surface->set_font_glyph(render::fonts::watermark_font, "Verdana", 28, 600, 0, 0, font_flags::fontflag_antialias);
+	interfaces::surface->set_font_glyph(render::fonts::weapon_font, "undefeated", 26, 200, 0, 0, font_flags::fontflag_antialias);
 	console::log("[setup] render initialized!\n");
 }
 

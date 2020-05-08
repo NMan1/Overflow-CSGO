@@ -7,9 +7,11 @@ hooks::reset::fn			reset_original				= nullptr;
 hooks::create_move::fn		create_move_original		= nullptr;
 hooks::paint_traverse::fn	paint_traverse_original		= nullptr;
 hooks::dme::fn				dme_original				= nullptr;
+hooks::sceneend::fn			sceneend_original			= nullptr;
 hooks::lock_cursor::fn		lock_cursor_original		= nullptr;
 hooks::get_view_model::fn	get_view_model_original		= nullptr;
 hooks::overide_view::fn		overide_view_original		= nullptr;
+hooks::fsn::fn				fsn_original				= nullptr;
 
 uint8_t*					present_address				= nullptr;
 uint8_t*					reset_address				= nullptr;
@@ -44,8 +46,10 @@ bool hooks::initialize()
 	auto get_overide_target = reinterpret_cast<void*>(get_virtual(interfaces::clientmode, 18));
 	auto paint_traverse_target = reinterpret_cast<void*>(get_virtual(interfaces::panel, 41));
 	auto dme_target = reinterpret_cast<void*>(get_virtual(interfaces::model_render, 21));
+	auto sceneend_target = reinterpret_cast<void*>(get_virtual(interfaces::render_view, 9));
 	auto lock_cursor_target = reinterpret_cast<void*>(get_virtual(interfaces::surface, 67));
 	auto in_key_event_target = reinterpret_cast<void*>(get_virtual(interfaces::client, 21));
+	auto fsn_target = reinterpret_cast<void*>(get_virtual(interfaces::client, 37));
 	auto present_address = utilities::pattern_scan(GetModuleHandleW(L"gameoverlayrenderer.dll"), "FF 15 ? ? ? ? 8B F8 85 DB") + 0x2;
 	auto reset_address = utilities::pattern_scan(GetModuleHandleW(L"gameoverlayrenderer.dll"), "FF 15 ? ? ? ? 8B F8 85 FF 78 18") + 0x2;
 
@@ -61,12 +65,12 @@ bool hooks::initialize()
 	}
 
 	if (MH_CreateHook(**reinterpret_cast<void***>(present_address), &present::hook, reinterpret_cast<void**>(&present_original)) != MH_OK) {
-		throw std::runtime_error("failed to initialize create_move. (outdated index?)");
+		throw std::runtime_error("failed to initialize present_address. (outdated index?)");
 		return false;
 	}		
 	
 	if (MH_CreateHook(**reinterpret_cast<void***>(reset_address), &reset::hook, reinterpret_cast<void**>(&reset_original)) != MH_OK) {
-		throw std::runtime_error("failed to initialize create_move. (outdated index?)");
+		throw std::runtime_error("failed to initialize reset_address. (outdated index?)");
 		return false;
 	}	
 
@@ -76,7 +80,17 @@ bool hooks::initialize()
 	}	
 
 	if (MH_CreateHook(dme_target, &dme::hook, reinterpret_cast<void**>(&dme_original)) != MH_OK) {
-		throw std::runtime_error("failed to initialize create_move. (outdated index?)");
+		throw std::runtime_error("failed to initialize dme. (outdated index?)");
+		return false;
+	}	
+
+	if (MH_CreateHook(sceneend_target, &sceneend::hook, reinterpret_cast<void**>(&sceneend_original)) != MH_OK) {
+		throw std::runtime_error("failed to initialize sceneend. (outdated index?)");
+		return false;
+	}	
+
+	if (MH_CreateHook(fsn_target, &fsn::hook, reinterpret_cast<void**>(&fsn_original)) != MH_OK) {
+		throw std::runtime_error("failed to initialize fsn. (outdated index?)");
 		return false;
 	}
 
@@ -175,9 +189,12 @@ bool __fastcall hooks::create_move::hook(void* ecx, void* edx, int input_sample_
 
 	math::correct_movement(old_viewangles, cmd, old_forwardmove, old_sidemove);
 
+	//clamping movement
 	cmd->forwardmove = std::clamp(cmd->forwardmove, -450.0f, 450.0f);
 	cmd->sidemove = std::clamp(cmd->sidemove, -450.0f, 450.0f);
+	cmd->upmove = std::clamp(cmd->upmove, -450.0f, 450.0f);
 
+	// clamping angles
 	cmd->viewangles.x = std::clamp(cmd->viewangles.x, -89.0f, 89.0f);
 	cmd->viewangles.y = std::clamp(cmd->viewangles.y, -180.0f, 180.0f);
 	cmd->viewangles.z = 0.0f;
@@ -187,7 +204,6 @@ bool __fastcall hooks::create_move::hook(void* ecx, void* edx, int input_sample_
 	return false;
 }
 
-// for menu
 long __stdcall hooks::present::hook(IDirect3DDevice9* device, RECT* source_rect, RECT* dest_rect, HWND dest_window_override, RGNDATA* dirty_region) 
 {
 	if (!hooks::initialized_drawManager) 
@@ -201,6 +217,8 @@ long __stdcall hooks::present::hook(IDirect3DDevice9* device, RECT* source_rect,
 	{
 		menu.pre_render(device);
 		menu.post_render();
+		if (menu.config.spectator_list)
+			menu.spectator_list();
 		if (menu.menu_opened)
 			menu.render();
 		menu.end_present(device);
@@ -223,7 +241,21 @@ long __stdcall hooks::reset::hook(IDirect3DDevice9 * device, D3DPRESENT_PARAMETE
 
 void __fastcall hooks::dme::hook(void* thisptr, void* edx, void* ctx, void* state, const model_render_info_t& info, matrix3x4_t* custom_bone_to_world)
 {
-	features::visuals::chams_run(dme_original, thisptr, ctx, state, info, custom_bone_to_world);
+	features::visuals::dme_chams_run(dme_original, thisptr, ctx, state, info, custom_bone_to_world);
+}
+
+void __stdcall hooks::sceneend::hook()
+{
+	//features::visuals::scene_chams_run();
+	sceneend_original(interfaces::render_view);
+}
+
+void __stdcall hooks::fsn::hook(int frame_stage)
+{
+	if (frame_stage == FRAME_NET_UPDATE_POSTDATAUPDATE_START)
+		if (menu.config.skins_enable)
+			features::skins::run();
+	fsn_original(interfaces::client, frame_stage);
 }
 
 void __stdcall hooks::paint_traverse::hook(unsigned int panel, bool force_repaint, bool allow_force) {

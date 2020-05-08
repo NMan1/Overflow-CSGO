@@ -38,6 +38,6 @@ namespace render {
 		extern unsigned long verdana_font_small;
 		extern unsigned long verdana_font;
 		extern unsigned long verdana_font_large;
-		extern unsigned long name_font;
+		extern unsigned long weapon_font;
 	}
 }

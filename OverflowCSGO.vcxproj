@@ -92,6 +92,7 @@
     <ClCompile Include="core\features\esp\esp.cpp" />
     <ClCompile Include="core\features\misc\engine_prediction.cpp" />
     <ClCompile Include="core\features\misc\misc.cpp" />
+    <ClCompile Include="core\features\skins\skins.cpp" />
     <ClCompile Include="core\hooks\hooks.cpp" />
     <ClCompile Include="core\menu\cfg.cpp" />
     <ClCompile Include="core\menu\imgui\dx9\imgui_impl_dx9.cpp" />

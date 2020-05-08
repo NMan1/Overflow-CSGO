@@ -20,6 +20,10 @@ namespace features {
 	namespace visuals {
 		void render_esp();
 		void render_visuals();
-		void chams_run(hooks::dme::fn original, void* thisptr, void* context, void* state, const model_render_info_t& info, matrix3x4_t* custom_bone_to_world);
+		void dme_chams_run(hooks::dme::fn original, void* thisptr, void* context, void* state, const model_render_info_t& info, matrix3x4_t* custom_bone_to_world);
+		void scene_chams_run();
 	};
+	namespace skins {
+		void run();
+	}
 }

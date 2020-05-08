@@ -96,12 +96,15 @@ void update_colors()
 	menu.config.fov_clr = color(menu.config.f_fov_clr[0] * 255, menu.config.f_fov_clr[1] * 255, menu.config.f_fov_clr[2] * 255, menu.config.f_fov_clr[3] * 255);
 	menu.config.spread_clr = color(menu.config.f_spread_clr[0] * 255, menu.config.f_spread_clr[1] * 255, menu.config.f_spread_clr[2] * 255, menu.config.f_spread_clr[3] * 255);
 	menu.config.chams_clr = color(menu.config.f_chams_clr[0] * 255, menu.config.f_chams_clr[1] * 255, menu.config.f_chams_clr[2] * 255, menu.config.f_chams_clr[3] * 255);
+	menu.config.chams_local_clr = color(menu.config.f_chams_local_clr[0] * 255, menu.config.f_chams_local_clr[1] * 255, menu.config.f_chams_local_clr[2] * 255, menu.config.f_chams_local_clr[3] * 255);
+	menu.config.chams_team_clr = color(menu.config.f_chams_team_clr[0] * 255, menu.config.f_chams_team_clr[1] * 255, menu.config.f_chams_team_clr[2] * 255, menu.config.f_chams_team_clr[3] * 255);
+	menu.config.name_clr = color(menu.config.f_name_clr[0] * 255, menu.config.f_name_clr[1] * 255, menu.config.f_name_clr[2] * 255, menu.config.f_name_clr[3] * 255);
+	menu.config.wep_name_clr = color(menu.config.f_wep_name[0] * 255, menu.config.f_wep_name[1] * 255, menu.config.f_wep_name[2] * 255, menu.config.f_wep_name[3] * 255);
+	menu.config.wep_icon_clr = color(menu.config.f_wep_icon[0] * 255, menu.config.f_wep_icon[1] * 255, menu.config.f_wep_icon[2] * 255, menu.config.f_wep_icon[3] * 255);
 }
 
 void Menu::render()
 {
-	//0.568, 0.533, 0.533
-	// Black overlay
 	ImGui::SetNextWindowSize(ImVec2(menu.screen_x, menu.screen_y));
 	ImGui::SetNextWindowPos(ImVec2(0, 0));
 	ImGui::Begin("Background", &menu.menu_opened, ImVec2(menu.screen_x, menu.screen_y), .45, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoMove);
@@ -445,9 +448,14 @@ void Menu::visuals_tab()
 		ImGui::SetCursorPosX(399 - 175);
 		if (ImGui::Checkbox("Animated Text", &menu.config.animated_health)) { if (menu.config.health_text) menu.config.health_text = !menu.config.health_text; }
 		ImGui::Checkbox("Show Name", &menu.config.name);
-		ImGui::SameLine();
-		ImGui::SetCursorPosX(399 - 175);
+		ImGui::ColorEdit4("name", menu.config.f_name_clr, ImGuiColorEditFlags_NoInputs);
 		ImGui::Checkbox("Show Weapon", &menu.config.gun);
+		ImGui::ColorEdit4("wep name", menu.config.f_wep_name, ImGuiColorEditFlags_NoInputs);
+		ImGui::SameLine(); 
+		ImGui::SetCursorPosX(399 - 175);
+		ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 5);
+		ImGui::Checkbox("Show Icon", &menu.config.weapon_icon);
+		ImGui::ColorEdit4("wep icon", menu.config.f_wep_icon, ImGuiColorEditFlags_NoInputs);
 
 		ImGui::Spacing();
 		ImGui::Spacing();
@@ -497,12 +505,17 @@ void Menu::visuals_tab()
 		ImGui::Custom::ChildSettingsInside(7, active);
 		ImGui::Checkbox("Enable Chams", &menu.config.chams);
 		ImGui::ColorEdit4("chams color", menu.config.f_chams_clr, ImGuiColorEditFlags_NoInputs);
-		ImGui::Checkbox("Show Team", &menu.config.team_check_chams);
-		ImGui::Checkbox("Local Chams", &menu.config.local_chams);
-		ImGui::Checkbox("Wireframe", &menu.config.wireframe);
 		ImGui::Text("Chams Material");
 		ImGui::Combo("##Chams Material", &menu.config.chams_type, chams_type, IM_ARRAYSIZE(chams_type));
-
+		ImGui::Checkbox("XQZ", &menu.config.chams_xqz);
+		ImGui::Checkbox("Show Team", &menu.config.team_check_chams);
+		ImGui::ColorEdit4("team chams coilor", menu.config.f_chams_team_clr, ImGuiColorEditFlags_NoInputs);
+		ImGui::SameLine();
+		ImGui::SetCursorPosX(399 - 175);
+		ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 5);
+		ImGui::Checkbox("Local Chams", &menu.config.local_chams);
+		ImGui::ColorEdit4("local chams clr", menu.config.f_chams_local_clr, ImGuiColorEditFlags_NoInputs);
+		ImGui::Checkbox("Wireframe", &menu.config.wireframe);
 	} ImGui::EndChild(true, menu.font_child_title, main_red);
 	ImGui::Custom::ChildSettingsEnd();
 
@@ -544,11 +557,13 @@ void Menu::misc_tab()
 		ImGui::SetCursorPosX(399 - 175);
 		ImGui::Checkbox("Anti Screenshot", &menu.config.anti_screenshot);
 		ImGui::Checkbox("Quick Peak", &menu.config.quick_peak_pair.second);
+		ImGui::SameLine();
+		ImGui::SetCursorPosX(399 - 175);
+		ImGui::Checkbox("Spectator List", &menu.config.spectator_list);
 		ImGui::Hotkey("##QuickPeakKey", &menu.config.quick_peak_pair.first, ImVec2(150, 30));
 		ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 5);
 	} ImGui::EndChild(true, menu.font_child_title, main_red);
 	ImGui::Custom::ChildSettingsEnd();
-
 
 	ImGui::Dummy(ImVec2(0, 6));
 	ImGui::Dummy(ImVec2(6, 0)); ImGui::SameLine();
@@ -620,7 +635,49 @@ void Menu::misc_tab()
 
 void Menu::skins_tab()
 {
+	ImGui::Dummy(ImVec2(0, 6));
+	ImGui::Dummy(ImVec2(6, 0)); ImGui::SameLine();
 
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(12, 24));
+	ImGui::BeginChild("Skins", ImVec2(399, 440), true, ImGuiWindowFlags_AlwaysUseWindowPadding);
+	{
+		ImGui::Checkbox("Enable Skins", &menu.config.skins_enable);
+		ImGui::Separator();
+		ImGui::Spacing();
+		ImGui::Spacing();
+
+		ImGui::PushFont(menu.font_weapon);
+
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
+		if (ImGui::Button("A"))
+			menu.config.skin_type = 0;		
+		ImGui::SameLine();
+		if (ImGui::Button("W"))
+			menu.config.skin_type = 1;	
+		ImGui::SameLine();
+		if (ImGui::Button("Z"))
+			menu.config.skin_type = 2;
+		ImGui::SameLine();
+		if (ImGui::Button("4"))
+			menu.config.skin_type = 3;
+		ImGui::PopStyleColor();
+
+		ImGui::PopFont();
+
+	} ImGui::EndChild(true, menu.font_child_title, main_red);
+	ImGui::PopStyleVar();
+
+	ImGui::Dummy(ImVec2(0, 6));
+	ImGui::Dummy(ImVec2(6, 0)); ImGui::SameLine();
+
+	ImGui::SetCursorPosY(46);
+	ImGui::SetCursorPosX(427);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(12, 24));
+	ImGui::BeginChild("##Skins2", ImVec2(399, 440), true, ImGuiWindowFlags_AlwaysUseWindowPadding);
+	{
+
+	} ImGui::EndChild(true, menu.font_child_title, main_red);
+	ImGui::PopStyleVar();
 }
 
 void Menu::settings_tab()
@@ -767,3 +824,34 @@ void Menu::settings_tab()
 	ImGui::PopStyleVar();
 }
 
+void Menu::spectator_list()
+{
+	menu.config.vec_size = menu.config.spectators.size();
+	if (menu.config.vec_size > menu.config.new_vec_size)
+	{
+		menu.config.spec_width += (20 * menu.config.vec_size);
+		menu.config.new_vec_size = menu.config.vec_size;
+	}
+	else if (menu.config.new_vec_size > menu.config.vec_size)
+		menu.config.spec_width -= (20 * menu.config.vec_size);  //NewVecSize = 0;
+
+	ImGui::SetNextWindowSize(ImVec2(175, menu.config.spec_width));
+	ImGui::SetNextWindowPos(ImVec2(1700, 260));
+	ImGui::PushFont(menu.font_title);
+	ImGui::Begin("Spectators", 0, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoTitleBar);
+	{
+		//Text("Spectators");
+		ImGui::Separator();
+		if (!menu.config.spectators.empty())
+		{
+			ImGui::PushFont(menu.font_menu);
+
+			for (int i = 0; i < menu.config.spectators.size(); i++)
+				ImGui::Text(menu.config.spectators[i].c_str());
+
+			ImGui::PopFont();
+		}
+	}
+	ImGui::PopFont();
+	ImGui::End();
+}

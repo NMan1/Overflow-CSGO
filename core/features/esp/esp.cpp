@@ -154,13 +154,22 @@ void features::visuals::render_esp()
 			interfaces::engine->get_player_info(entity->index(), &info);
 			std::string print(info.fakeplayer ? std::string("bot ").append(info.name).c_str() : info.name);
 			std::transform(print.begin(), print.end(), print.begin(), ::tolower);
-			render::draw_text_string(bbox.x + (bbox.w / 2), bbox.y - 13, render::fonts::verdana_font, print, true, color(255, 255, 255));
+			render::draw_text_string(bbox.x + (bbox.w / 2), bbox.y - 13, render::fonts::verdana_font, print, true, menu.config.name_clr);
 		}
 		
+		if (menu.config.weapon_icon)
+		{
+			auto wep_name = entity->active_weapon()->get_icon();
+			render::draw_text_string(bbox.x + (bbox.w / 2), bbox.h + bbox.y - 2, render::fonts::weapon_font, wep_name, true, menu.config.wep_icon_clr);
+		}
+
 		if (menu.config.gun)
 		{
+			int height = bbox.h + bbox.y + 2;
+			if (menu.config.weapon_icon)
+				height = bbox.h + bbox.y + 16;
 			auto wep_name = entity->active_weapon()->get_weapon_data()->m_szWeaponName;
-			render::draw_text_string(bbox.x + (bbox.w / 2), bbox.h + bbox.y + 2, render::fonts::verdana_font, clean_item_name(wep_name), true, color(255, 255, 255));
+			render::draw_text_string(bbox.x + (bbox.w / 2), height, render::fonts::verdana_font, clean_item_name(wep_name), true, menu.config.wep_name_clr);
 		}
 
 		std::vector<std::pair<std::string, color>> flags;
@@ -238,10 +247,49 @@ void nightmode()
 	}
 }
 
+void update_spectators()
+{
+	std::vector <std::string> Name;
+	for (int i = 1; i < interfaces::globals->max_clients; i++)
+	{
+		if (csgo::local_player)
+		{
+			auto entity = reinterpret_cast<player_t*>(interfaces::entity_list->get_client_entity(i));
+			if (entity && entity != csgo::local_player && !entity->dormant() && !entity->is_alive())
+			{
+				player_info_t info;
+				interfaces::engine->get_player_info(i, &info);
+
+				DWORD obs = entity->observer_target();
+				if (obs)
+				{
+					player_t* spectator = (player_t*)interfaces::entity_list->get_client_entity_handle(obs);
+					if (spectator == csgo::local_player)
+					{
+						player_info_t info_entity;
+						interfaces::engine->get_player_info(i, &info_entity);
+
+						Name.push_back(info_entity.name);
+						//std::transform(Name.begin(), Name.end(), Name.begin(), ::tolower);
+						//g_Render.String(SPoint(width - 80, height / 2 + (10 * SpecIndex)), CD3DFONT_NONE, g_Settings.Visuals.cSpecList, g_Fonts.pFontTahoma10.get(), Name);
+					}
+				}
+			}
+		}
+		else if (!csgo::local_player->is_alive() || !interfaces::engine->is_in_game())
+			Name.clear();
+
+		menu.config.spectators = Name;
+	}
+}
+
 void features::visuals::render_visuals()
 {
 	if (!csgo::local_player)
 		return;
+
+	if (menu.config.spectator_list)
+		update_spectators();
 
 	if (menu.config.show_fov && csgo::local_player->is_alive())
 	{

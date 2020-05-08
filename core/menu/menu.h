@@ -104,6 +104,7 @@ public:
 		font_menu = ImGui::GetIO().Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\Verdana.ttf", 20);
 		font_title = ImGui::GetIO().Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\Tahoma.ttf", 24);
 		font_child_title = ImGui::GetIO().Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\Verdana.ttf", 24);
+		font_weapon = ImGui::GetIO().Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\icon font.ttf", 32);
 	}
 
 	float clip(float n, float lower, float upper)
@@ -282,7 +283,7 @@ public:
 		float clan_tag_delay;
 
 		// skins
-		bool skins;
+		bool skins_enable;
 
 		// add at end
 		float f_chams_clr[4] = { 1.f, 0.411f, 0.705f, 1.f };
@@ -290,6 +291,24 @@ public:
 		int chams_type = 0;
 		bool local_chams;
 		bool wireframe;
+		float f_chams_local_clr[4] = { 1.f, 0.411f, 0.705f, 1.f };
+		color chams_local_clr = color(255, 105, 180);		
+		float f_chams_team_clr[4] = { 1.f, 0.411f, 0.705f, 1.f };
+		color chams_team_clr = color(255, 105, 180);
+		bool chams_xqz = true;
+		bool weapon_icon;
+		int skin_type = 0;
+		bool spectator_list;
+		std::vector <std::string> spectators;
+		int vec_size = 0;
+		int new_vec_size = 0;
+		int spec_width = 30;
+		float f_wep_name[4] = { 1.f, 1.f, 1.f, 1.f };
+		color wep_name_clr = color(255, 105, 180);
+		float f_wep_icon[4] = { 1.f, 1.f, 1.f, 1.f };
+		color wep_icon_clr = color(255, 105, 180);		
+		float f_name_clr[4] = { 1.f, 1.f, 1.f, 1.f };
+		color name_clr = color(255, 105, 180);
 	};
 	Config config;
 
@@ -298,6 +317,7 @@ private:
 	ImFont* font_title = nullptr;
 	ImFont* font_child_title = nullptr;
 	ImFont* font_menu = nullptr;
+	ImFont* font_weapon = nullptr;
 
 	void change_log();
 
@@ -312,6 +332,9 @@ private:
 	void skins_tab();
 
 	void settings_tab();
+
+public:
+	void spectator_list();
 };
 
 extern Menu menu;
