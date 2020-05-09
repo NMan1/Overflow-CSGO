@@ -24,7 +24,7 @@ float version_f = 1.5;
 const char* legit_select[] =
 {
 	"Closest To Crosshair",
-	"Distance",
+	"Closest Distance",
 	"Lowest Health"
 };
 
@@ -101,6 +101,7 @@ void update_colors()
 	menu.config.name_clr = color(menu.config.f_name_clr[0] * 255, menu.config.f_name_clr[1] * 255, menu.config.f_name_clr[2] * 255, menu.config.f_name_clr[3] * 255);
 	menu.config.wep_name_clr = color(menu.config.f_wep_name[0] * 255, menu.config.f_wep_name[1] * 255, menu.config.f_wep_name[2] * 255, menu.config.f_wep_name[3] * 255);
 	menu.config.wep_icon_clr = color(menu.config.f_wep_icon[0] * 255, menu.config.f_wep_icon[1] * 255, menu.config.f_wep_icon[2] * 255, menu.config.f_wep_icon[3] * 255);
+	menu.config.xqz_clr = color(menu.config.f_xqz_clr[0] * 255, menu.config.f_xqz_clr[1] * 255, menu.config.f_xqz_clr[2] * 255, menu.config.f_xqz_clr[3] * 255);
 }
 
 void Menu::render()
@@ -293,13 +294,13 @@ void Menu::legit_tab()
 		ImGui::Spacing();
 		ImGui::Spacing();
 		ImGui::SetCursorPosX((399 - 275) * .5);
-		ImGui::SliderInt("FOV", &menu.config.legit_fov, 0, 180);	
+		ImGui::SliderInt("FOV", &menu.config.legit_fov, 0, 90);	
 
 		ImGui::Spacing();
 		ImGui::Spacing();
 		ImGui::Spacing();
 		ImGui::SetCursorPosX((399 - 275) * .5);
-		ImGui::SliderInt("Smoothing", &menu.config.smoothing, 0, 25);
+		ImGui::SliderFloat("Smoothing", &menu.config.smoothing, 0, 10, "%.1f");
 	} ImGui::EndChild(true, menu.font_child_title, main_red);
 	ImGui::Custom::ChildSettingsEnd();
 
@@ -449,6 +450,7 @@ void Menu::visuals_tab()
 		if (ImGui::Checkbox("Animated Text", &menu.config.animated_health)) { if (menu.config.health_text) menu.config.health_text = !menu.config.health_text; }
 		ImGui::Checkbox("Show Name", &menu.config.name);
 		ImGui::ColorEdit4("name", menu.config.f_name_clr, ImGuiColorEditFlags_NoInputs);
+		ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 5);
 		ImGui::Checkbox("Show Weapon", &menu.config.gun);
 		ImGui::ColorEdit4("wep name", menu.config.f_wep_name, ImGuiColorEditFlags_NoInputs);
 		ImGui::SameLine(); 
@@ -508,6 +510,7 @@ void Menu::visuals_tab()
 		ImGui::Text("Chams Material");
 		ImGui::Combo("##Chams Material", &menu.config.chams_type, chams_type, IM_ARRAYSIZE(chams_type));
 		ImGui::Checkbox("XQZ", &menu.config.chams_xqz);
+		ImGui::ColorEdit4("xqz color", menu.config.f_xqz_clr, ImGuiColorEditFlags_NoInputs);
 		ImGui::Checkbox("Show Team", &menu.config.team_check_chams);
 		ImGui::ColorEdit4("team chams coilor", menu.config.f_chams_team_clr, ImGuiColorEditFlags_NoInputs);
 		ImGui::SameLine();
@@ -550,9 +553,11 @@ void Menu::misc_tab()
 		ImGui::Spacing();
 		ImGui::Checkbox("Bunny Hop", &menu.config.bhop);
 		ImGui::SameLine();
+		ImGui::SetCursorPosX(399 - 175);		
+		ImGui::SameLine();
 		ImGui::SetCursorPosX(399 - 175);
+		ImGui::Checkbox("Auto Strafer", &menu.config.auto_strafer);
 		ImGui::Checkbox("Auto Pistol", &menu.config.auto_pistol);
-		ImGui::Checkbox("No Scope", &menu.config.no_scope);
 		ImGui::SameLine();
 		ImGui::SetCursorPosX(399 - 175);
 		ImGui::Checkbox("Anti Screenshot", &menu.config.anti_screenshot);
@@ -561,7 +566,8 @@ void Menu::misc_tab()
 		ImGui::SetCursorPosX(399 - 175);
 		ImGui::Checkbox("Spectator List", &menu.config.spectator_list);
 		ImGui::Hotkey("##QuickPeakKey", &menu.config.quick_peak_pair.first, ImVec2(150, 30));
-		ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 5);
+		ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 5);
+		ImGui::Checkbox("No Scope", &menu.config.no_scope);
 	} ImGui::EndChild(true, menu.font_child_title, main_red);
 	ImGui::Custom::ChildSettingsEnd();
 
@@ -643,25 +649,18 @@ void Menu::skins_tab()
 	{
 		ImGui::Checkbox("Enable Skins", &menu.config.skins_enable);
 		ImGui::Separator();
-		ImGui::Spacing();
-		ImGui::Spacing();
+
 
 		ImGui::PushFont(menu.font_weapon);
-
-		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
-		if (ImGui::Button("A"))
-			menu.config.skin_type = 0;		
-		ImGui::SameLine();
-		if (ImGui::Button("W"))
-			menu.config.skin_type = 1;	
-		ImGui::SameLine();
-		if (ImGui::Button("Z"))
-			menu.config.skin_type = 2;
-		ImGui::SameLine();
-		if (ImGui::Button("4"))
-			menu.config.skin_type = 3;
+		ImVec4 ButColor{ ImColor(0.10f, 0.10f, 0.10f, 1.00f) };
+		ImGui::PushStyleColor(ImGuiCol_Button, ButColor);
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ButColor);
+		if (ImGui::Button("G", ImVec2(78, 42))) { menu.config.skin_type = 0; } ImGui::SameLine();  //Pistol
+		if (ImGui::Button("W", ImVec2(96, 42))) { menu.config.skin_type = 1; } ImGui::SameLine();  //Rifle
+		if (ImGui::Button("a", ImVec2(100, 42))) { menu.config.skin_type = 2; } ImGui::SameLine();  //Snipers
+		if (ImGui::Button("4", ImVec2(78, 42))) { menu.config.skin_type = 3; }			           //Knife
 		ImGui::PopStyleColor();
-
+		ImGui::PopStyleColor();
 		ImGui::PopFont();
 
 	} ImGui::EndChild(true, menu.font_child_title, main_red);
@@ -684,7 +683,6 @@ void Menu::settings_tab()
 {
 	ImGui::Dummy(ImVec2(0, 6));
 	ImGui::Dummy(ImVec2(6, 0)); ImGui::SameLine();
-
 
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(12, 24));
 	ImGui::BeginChild("Settings", ImVec2(399, 440), true, ImGuiWindowFlags_AlwaysUseWindowPadding);
@@ -826,32 +824,31 @@ void Menu::settings_tab()
 
 void Menu::spectator_list()
 {
-	menu.config.vec_size = menu.config.spectators.size();
-	if (menu.config.vec_size > menu.config.new_vec_size)
+	menu.vec_size = menu.spectators.size();
+	if (menu.vec_size > menu.new_vec_size)
 	{
-		menu.config.spec_width += (20 * menu.config.vec_size);
-		menu.config.new_vec_size = menu.config.vec_size;
+		menu.spec_width += (20 * menu.vec_size);
+		menu.new_vec_size = menu.vec_size;
 	}
-	else if (menu.config.new_vec_size > menu.config.vec_size)
-		menu.config.spec_width -= (20 * menu.config.vec_size);  //NewVecSize = 0;
+	else if (menu.new_vec_size > menu.vec_size)
+		menu.spec_width -= (20 * menu.vec_size);  //NewVecSize = 0;
 
-	ImGui::SetNextWindowSize(ImVec2(175, menu.config.spec_width));
-	ImGui::SetNextWindowPos(ImVec2(1700, 260));
-	ImGui::PushFont(menu.font_title);
+	ImGui::SetNextWindowSize(ImVec2(175, menu.spec_width));
+	ImGui::SetNextWindowPos(ImVec2(1700, 260), ImGuiCond_Once);
 	ImGui::Begin("Spectators", 0, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoTitleBar);
 	{
-		//Text("Spectators");
+		ImGui::SetCursorPosX((175 - ImGui::CalcTextSize("Spectators").x)*.5);
+		ImGui::Text("Spectators");
 		ImGui::Separator();
-		if (!menu.config.spectators.empty())
+		if (!menu.spectators.empty())
 		{
-			ImGui::PushFont(menu.font_menu);
-
-			for (int i = 0; i < menu.config.spectators.size(); i++)
-				ImGui::Text(menu.config.spectators[i].c_str());
-
-			ImGui::PopFont();
+			int size = menu.spectators.size();
+			for (int i = 0; i < size; i++)
+			{
+				ImGui::Text(menu.spectators[i].c_str());
+				size = menu.spectators.size();
+			}
 		}
 	}
-	ImGui::PopFont();
 	ImGui::End();
 }

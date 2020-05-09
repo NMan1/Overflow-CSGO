@@ -28,6 +28,41 @@ void features::misc::bunny_hop(c_usercmd* cmd)
 	}
 }
 
+void features::misc::auto_strafer(c_usercmd* cmd)
+{
+	static bool flip = true;
+
+	if (csgo::local_player->flags() & fl_onground && !(cmd->buttons & in_jump))
+		return;
+
+	cmd->forwardmove = 0.0f;
+	cmd->sidemove = 0.0f;
+
+	if (cmd->mousedx < 0)
+	{
+		cmd->sidemove = -450.0f;
+	}
+	else if (cmd->mousedx > 0)
+	{
+		cmd->sidemove = 450.0f;
+	}
+	else
+	{
+		if (flip)
+		{
+			cmd->viewangles = math::normalize(vec3_t(cmd->viewangles.x, cmd->viewangles.y - 1.0f, 0.0f));
+			cmd->sidemove = -450.0f;
+			flip = false;
+		}
+		else
+		{
+			cmd->viewangles = math::normalize(vec3_t(cmd->viewangles.x, cmd->viewangles.y + 1.0f, 0.0f));
+			cmd->sidemove = 450.0f;
+			flip = true;
+		}
+	}
+}
+
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 float best_cam_dist() {

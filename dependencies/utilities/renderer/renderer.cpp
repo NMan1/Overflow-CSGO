@@ -19,7 +19,7 @@ void render::initialize()
 	interfaces::surface->set_font_glyph(render::fonts::verdana_font, "Verdana", 12, 800, 0, 0, font_flags::fontflag_antialias); //300 
 	interfaces::surface->set_font_glyph(render::fonts::verdana_font_large, "Verdana", 14, 28, 0, 0, font_flags::fontflag_antialias); //300 
 	interfaces::surface->set_font_glyph(render::fonts::watermark_font, "Verdana", 28, 600, 0, 0, font_flags::fontflag_antialias);
-	interfaces::surface->set_font_glyph(render::fonts::weapon_font, "undefeated", 26, 200, 0, 0, font_flags::fontflag_antialias);
+	interfaces::surface->set_font_glyph(render::fonts::weapon_font, "undefeated", 22, 200, 0, 0, font_flags::fontflag_antialias);
 	console::log("[setup] render initialized!\n");
 }
 

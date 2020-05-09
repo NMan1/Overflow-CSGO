@@ -20,7 +20,9 @@ void features::skins::run()
 			continue;
 		
 		if (weapon->client_class()->class_id == class_ids::cak47)
-			weapon->fallback_paint_kit() = 20;
+			weapon->fallback_paint_kit() = 12;		
+		else if (weapon->client_class()->class_id == class_ids::cweaponm4a1)
+			weapon->fallback_paint_kit() = 2;
 
 		weapon->original_owner_xuid_low() = 0;
 		weapon->original_owner_xuid_high() = 0;

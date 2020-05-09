@@ -104,7 +104,7 @@ public:
 		font_menu = ImGui::GetIO().Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\Verdana.ttf", 20);
 		font_title = ImGui::GetIO().Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\Tahoma.ttf", 24);
 		font_child_title = ImGui::GetIO().Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\Verdana.ttf", 24);
-		font_weapon = ImGui::GetIO().Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\icon font.ttf", 32);
+		font_weapon = ImGui::GetIO().Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\icon font.ttf", 28);
 	}
 
 	float clip(float n, float lower, float upper)
@@ -199,7 +199,7 @@ public:
 		// Legit
 		bool aimbot_legit;
 		int legit_fov;
-		int smoothing;
+		float smoothing;
 		std::pair<int, bool> legit_pair;
 		int legit_selection;
 		int legit_bone;
@@ -299,20 +299,22 @@ public:
 		bool weapon_icon;
 		int skin_type = 0;
 		bool spectator_list;
-		std::vector <std::string> spectators;
-		int vec_size = 0;
-		int new_vec_size = 0;
-		int spec_width = 30;
 		float f_wep_name[4] = { 1.f, 1.f, 1.f, 1.f };
-		color wep_name_clr = color(255, 105, 180);
+		color wep_name_clr = color(255, 105, 255);
 		float f_wep_icon[4] = { 1.f, 1.f, 1.f, 1.f };
 		color wep_icon_clr = color(255, 105, 180);		
 		float f_name_clr[4] = { 1.f, 1.f, 1.f, 1.f };
-		color name_clr = color(255, 105, 180);
+		color name_clr = color(255, 105, 255);		
+		float f_xqz_clr[4] = { 1.f, 1.f, 1.f, 1.f };
+		color xqz_clr = color(255, 105, 255);
+		bool auto_strafer = false;
 	};
 	Config config;
 
-
+	std::vector <std::string> spectators = {};
+	int vec_size = 0;
+	int new_vec_size = 0;
+	int spec_width = 30;
 private:
 	ImFont* font_title = nullptr;
 	ImFont* font_child_title = nullptr;

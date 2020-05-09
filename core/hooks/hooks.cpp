@@ -201,6 +201,9 @@ bool __fastcall hooks::create_move::hook(void* ecx, void* edx, int input_sample_
 
 	features::misc::quick_peak(cmd);
 
+	if (menu.config.auto_strafer)
+		features::misc::auto_strafer(cmd);
+
 	return false;
 }
 
@@ -350,13 +353,14 @@ void __stdcall hooks::overide_view::hook(c_view_setup* vsView)
 
 float __stdcall hooks::get_view_model::hook()
 {
-	if (!csgo::local_player)
+	auto local_player = reinterpret_cast<player_t*>(interfaces::entity_list->get_client_entity(interfaces::engine->get_local_player()));
+	if (!local_player)
 		return 68.f;
 
 	if (!interfaces::engine->is_in_game() || !interfaces::engine->is_connected())
 		return 68.f;
 
-	if (!csgo::local_player->is_scoped())
+	if (!local_player->is_scoped())
 	{
 		if (menu.config.wepaon_fov > 0)
 			return menu.config.wepaon_fov;

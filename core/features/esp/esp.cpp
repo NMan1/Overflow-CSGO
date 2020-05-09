@@ -86,11 +86,13 @@ void features::visuals::render_esp()
 	if (menu.config.anti_screenshot && interfaces::engine->is_taking_screenshot())
 		return;
 
+	auto local_player = reinterpret_cast<player_t*>(interfaces::entity_list->get_client_entity(interfaces::engine->get_local_player()));
+
 	for (int i = 1; i <= interfaces::globals->max_clients; i++) 
 	{
 		auto entity = reinterpret_cast<player_t*>(interfaces::entity_list->get_client_entity(i));
 
-		if (!entity || entity == csgo::local_player)
+		if (!entity || entity == local_player)
 			continue;
 
 		if (!entity->is_alive() || !entity->is_player() || entity->health() <= 0)
@@ -99,7 +101,7 @@ void features::visuals::render_esp()
 		if (entity->dormant())
 			continue;
 
-		if (entity->team() == csgo::local_player->team() && !menu.config.team_check)
+		if (entity->team() == local_player->team() && !menu.config.team_check)
 			continue;
 
 		box bbox;
@@ -109,10 +111,10 @@ void features::visuals::render_esp()
 		if (menu.config.box)
 		{
 			if (menu.config.box_outline)
-				render::draw_outline(bbox.x - 1, bbox.y - 1, bbox.w + 2, bbox.h + 2, (entity->team() == csgo::local_player->team() ? color(10, 255, 10) : menu.config.box_outline_clr));
-			render::draw_rect(bbox.x, bbox.y, bbox.w, bbox.h, (entity->team() == csgo::local_player->team() ? color(10, 255, 10) : menu.config.box_clr));
+				render::draw_outline(bbox.x - 1, bbox.y - 1, bbox.w + 2, bbox.h + 2, (entity->team() == local_player->team() ? color(10, 255, 10) : menu.config.box_outline_clr));
+			render::draw_rect(bbox.x, bbox.y, bbox.w, bbox.h, (entity->team() == local_player->team() ? color(10, 255, 10) : menu.config.box_clr));
 			if (menu.config.box_outline)
-				render::draw_outline(bbox.x + 1, bbox.y + 1, bbox.w - 2, bbox.h-+ 2, (entity->team() == csgo::local_player->team() ? color(10, 255, 10) : menu.config.box_outline_clr));
+				render::draw_outline(bbox.x + 1, bbox.y + 1, bbox.w - 2, bbox.h-+ 2, (entity->team() == local_player->team() ? color(10, 255, 10) : menu.config.box_outline_clr));
 		}
 
 
@@ -120,7 +122,7 @@ void features::visuals::render_esp()
 		{
 			if (menu.config.corner_box_outline)
 				render::draw_corner_box(bbox.x - 1, bbox.y - 1, bbox.w + 1, bbox.h + 1, menu.config.corner_outline_clr);
-			render::draw_corner_box(bbox.x, bbox.y, bbox.w, bbox.h, (entity->team() == csgo::local_player->team() ? color(10, 255, 10) : menu.config.corner_box_clr));
+			render::draw_corner_box(bbox.x, bbox.y, bbox.w, bbox.h, (entity->team() == local_player->team() ? color(10, 255, 10) : menu.config.corner_box_clr));
 			if (menu.config.corner_box_outline)
 				render::draw_corner_box(bbox.x + 1, bbox.y + 1, bbox.w - 2, bbox.h - 2, menu.config.corner_outline_clr);
 		}
@@ -147,13 +149,13 @@ void features::visuals::render_esp()
 				render::draw_text_string(bbox.x - 20 - (right / 2), bbox.y - 1.5, render::fonts::verdana_font_small, s_health, false, color(255, 255, 255));
 		}
 
-		// adding moves down in screen space
 		if (menu.config.name)
 		{
 			player_info_t info;
 			interfaces::engine->get_player_info(entity->index(), &info);
 			std::string print(info.fakeplayer ? std::string("bot ").append(info.name).c_str() : info.name);
 			std::transform(print.begin(), print.end(), print.begin(), ::tolower);
+			menu.config.name_clr.a = 255;
 			render::draw_text_string(bbox.x + (bbox.w / 2), bbox.y - 13, render::fonts::verdana_font, print, true, menu.config.name_clr);
 		}
 		
@@ -249,13 +251,13 @@ void nightmode()
 
 void update_spectators()
 {
-	std::vector <std::string> Name;
+	std::vector<std::string> Name;
 	for (int i = 1; i < interfaces::globals->max_clients; i++)
 	{
 		if (csgo::local_player)
 		{
 			auto entity = reinterpret_cast<player_t*>(interfaces::entity_list->get_client_entity(i));
-			if (entity && entity != csgo::local_player && !entity->dormant() && !entity->is_alive())
+			if (entity && entity != csgo::local_player && !entity->is_alive())
 			{
 				player_info_t info;
 				interfaces::engine->get_player_info(i, &info);
@@ -279,7 +281,7 @@ void update_spectators()
 		else if (!csgo::local_player->is_alive() || !interfaces::engine->is_in_game())
 			Name.clear();
 
-		menu.config.spectators = Name;
+		menu.spectators = Name;
 	}
 }
 
@@ -294,7 +296,7 @@ void features::visuals::render_visuals()
 	if (menu.config.show_fov && csgo::local_player->is_alive())
 	{
 		float radius = tan(DEG2RAD(menu.config.legit_fov / 2)) / tan(DEG2RAD(menu.config.actual_fov / 2)) * (menu.screen_x / 2);
-		render::draw_circle(menu.screen_x / 2, menu.screen_y / 2, radius, 50, menu.config.spread_clr);
+		render::draw_circle(menu.screen_x / 2, menu.screen_y / 2, radius, 50, menu.config.fov_clr);
 	}
 
 	if (menu.config.show_spread && csgo::local_player->is_alive())

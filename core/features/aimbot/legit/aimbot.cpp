@@ -57,6 +57,76 @@ player_t* closest_to_crosshair(c_usercmd* user_cmd)
 	return best_entity;
 }
 
+player_t* closest_distance(c_usercmd* user_cmd)
+{
+	player_t* best_entity = nullptr;
+	float distance;
+	float best_distance = FLT_MAX;
+
+	for (int i = 1; i <= interfaces::globals->max_clients; i++)
+	{
+		auto view_angles = user_cmd->viewangles;
+		auto entity = reinterpret_cast<player_t*>(interfaces::entity_list->get_client_entity(i));
+
+		if (!entity || entity == csgo::local_player)
+			continue;
+
+		if (entity->has_gun_game_immunity() || entity->dormant() || !entity->is_alive() || !entity->is_player() || entity->health() <= 0)
+			continue;
+
+		if (entity->team() == csgo::local_player->team() && !menu.config.team_check)
+			continue;
+
+		if (menu.config.only_visible)
+			if (!entity->is_visible(entity))
+				continue;
+		
+		auto delta = math::calculate_angle(csgo::local_player->get_eye_pos(), entity->get_eye_pos(), view_angles).length();
+		distance = entity->abs_origin().distance_to(csgo::local_player->abs_origin());
+		if (distance < best_distance && delta < menu.config.legit_fov)
+		{
+			best_entity = entity;
+			best_distance = distance;
+		}
+	}
+	return best_entity;
+}
+
+player_t* lowest_health(c_usercmd* user_cmd)
+{
+	player_t* best_entity = nullptr;
+	int health;
+	int best_health = 1000.f;
+
+	for (int i = 1; i <= interfaces::globals->max_clients; i++)
+	{
+		auto view_angles = user_cmd->viewangles;
+		auto entity = reinterpret_cast<player_t*>(interfaces::entity_list->get_client_entity(i));
+
+		if (!entity || entity == csgo::local_player)
+			continue;
+
+		if (entity->has_gun_game_immunity() || entity->dormant() || !entity->is_alive() || !entity->is_player() || entity->health() <= 0)
+			continue;
+
+		if (entity->team() == csgo::local_player->team() && !menu.config.team_check)
+			continue;
+
+		if (menu.config.only_visible)
+			if (!entity->is_visible(entity))
+				continue;
+
+		auto delta = math::calculate_angle(csgo::local_player->get_eye_pos(), entity->get_eye_pos(), view_angles).length();
+		health = entity->health();
+		if (health < best_health && delta < menu.config.legit_fov)
+		{
+			best_entity = entity;
+			best_health = health;
+		}
+	}
+	return best_entity;
+}
+
 void features::aimbot::legit::run(c_usercmd* user_cmd)
 {
 	if (!menu.menu_opened)
@@ -80,6 +150,10 @@ void features::aimbot::legit::run(c_usercmd* user_cmd)
 			{
 			case 0:
 				entity = closest_to_crosshair(user_cmd); break;
+			case 1: 
+				entity = closest_distance(user_cmd); break;
+			case 2:
+				entity = lowest_health(user_cmd); break;
 			default:
 				break;
 			}
@@ -96,7 +170,7 @@ void features::aimbot::legit::run(c_usercmd* user_cmd)
 			angle = angle.clamp();
 
 			if (menu.config.smoothing > 0)
-				angle /= menu.config.smoothing;
+				angle /= (menu.config.smoothing * 5);
 
 			angle = math::normalize(angle);
 
