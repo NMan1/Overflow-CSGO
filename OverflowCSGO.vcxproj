@@ -131,8 +131,13 @@
     <ClInclude Include="core\menu\imgui\stb_textedit.h" />
     <ClInclude Include="core\menu\imgui\stb_truetype.h" />
     <ClInclude Include="core\menu\menu.h" />
+    <ClInclude Include="dependencies\interfaces\c_handle.hpp" />
     <ClInclude Include="dependencies\interfaces\c_hud_chat.hpp" />
     <ClInclude Include="dependencies\interfaces\I_client_mode.h" />
+    <ClInclude Include="dependencies\interfaces\I_client_networkable.hpp" />
+    <ClInclude Include="dependencies\interfaces\I_client_renderable.hpp" />
+    <ClInclude Include="dependencies\interfaces\i_client_thinkable.h" />
+    <ClInclude Include="dependencies\interfaces\I_client_unkown.hpp" />
     <ClInclude Include="dependencies\interfaces\i_weapon_system.hpp" />
     <ClInclude Include="dependencies\minhook\buffer.h" />
     <ClInclude Include="dependencies\minhook\hde\hde32.h" />

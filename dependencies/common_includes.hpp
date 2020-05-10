@@ -32,3 +32,4 @@
 #include "../source-sdk/math/vector3d.hpp"
 #include "../core/menu/menu.h"
 #include "../dependencies/interfaces/I_client_mode.h"
+#include "../dependencies/interfaces/I_client_renderable.hpp"

@@ -66,6 +66,46 @@ void features::misc::auto_strafer(c_usercmd* cmd)
 	}
 }
 
+void features::misc::movement_blocker(c_usercmd* cmd)
+{
+	if (!csgo::local_player || !csgo::local_player->is_alive())
+		return;
+
+	player_t* ground_entity = (player_t*)interfaces::entity_list->get_client_entity_handle(csgo::local_player->ground_entity());
+
+	// Check if there's a player under us.
+	if (ground_entity && ground_entity->client_class()->class_id == class_ids::ccsplayer)
+	{
+		// Get the target's speed.
+		vec3_t Velocity = ground_entity->velocity();
+		const auto Speed = Velocity.Length2D();
+
+		if (Speed > 0.0f)
+		{
+			// Get the angles direction based on the target's speed.
+			vec3_t Direction;
+			math::vector_angles(Velocity, Direction);
+
+			vec3_t ViewAngles;
+			interfaces::engine->get_view_angles(ViewAngles);
+
+			// Cut down on our viewangles.
+			Direction.y = ViewAngles.y - Direction.y;
+
+			// Transform into vector again.
+			vec3_t Forward;
+			math::angle_vector(Direction, Forward);
+
+			// Calculate the new direction based on the target's speed.
+			vec3_t NewDirection = Forward * Speed;
+
+			// Move accordingly.
+			cmd->forwardmove = NewDirection.x;
+			cmd->sidemove = NewDirection.y;
+		}
+	}
+}
+
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 float best_cam_dist() {

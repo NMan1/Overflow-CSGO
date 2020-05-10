@@ -55,6 +55,11 @@ namespace hooks {
 	namespace fsn {
 		using fn = void(__thiscall*)(void* _this, int);
 		void __stdcall hook(int frame_stage);
+	}	
+
+	namespace list_leaves {
+		using fn = int(__thiscall*)(void*, vec3_t&, vec3_t&, unsigned short*, int);
+		int __fastcall hook(void* bsp, void* edx, vec3_t& mins, vec3_t& maxs, unsigned short* pList, int listMax);
 	}
 
 	LRESULT  __stdcall					  WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);

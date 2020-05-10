@@ -1,5 +1,7 @@
 #pragma once
 #include "../../source-sdk/structs/materials.hpp"
+#include "I_client_renderable.hpp"
+
 struct draw_model_state_t {
 	studio_hdr_t* m_pStudioHdr;
 	studiohwdata_t* m_pStudioHWData;

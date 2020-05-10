@@ -214,7 +214,7 @@ void Menu::change_log()
 
 		ImGui::Text(version.c_str());
 		ImGui::SameLine();
-		ImGui::SetCursorPosX((826 - 14) - 300);
+		ImGui::SetCursorPosX((826 - 14) - 325);
 		ImGui::Text("Build Date: " __DATE__ " / " __TIME__);
 
 		ImGui::Separator();
@@ -534,6 +534,9 @@ void Menu::visuals_tab()
 		ImGui::Custom::ChildSettingsInside(8, active);
 
 		ImGui::Checkbox("Disable Post Processing", &menu.config.disbale_post_processing);
+		ImGui::Checkbox("Disable Occulusion", &menu.config.disable_occulusion);
+		ImGui::SameLine();
+		ImGui::SetCursorPosX(399 - 175);
 		ImGui::Checkbox("Night Mode", &menu.config.night_mode);
 	} ImGui::EndChild(true, menu.font_child_title, main_red);
 	ImGui::Custom::ChildSettingsEnd();
@@ -570,6 +573,7 @@ void Menu::misc_tab()
 		ImGui::SetCursorPosX(399 - 175);
 		ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 5);
 		ImGui::Checkbox("No Scope", &menu.config.no_scope);
+		ImGui::Checkbox("Movement Blocker", &menu.config.movement_blocker);
 	} ImGui::EndChild(true, menu.font_child_title, main_red);
 	ImGui::Custom::ChildSettingsEnd();
 
@@ -826,7 +830,7 @@ void Menu::settings_tab()
 
 void Menu::spectator_list()
 {
-	menu.spec_height = menu.spectators.size() * 10;
+	menu.spec_height = (menu.spectators.size() * 12) + 35;
 	if (menu.spectators.empty())
 		menu.spec_height = 30;
 

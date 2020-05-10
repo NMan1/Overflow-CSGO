@@ -102,7 +102,7 @@ public:
 		ImGui::CreateContext();
 
 		font_menu = ImGui::GetIO().Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\Verdana.ttf", 20);
-		font_spectators = ImGui::GetIO().Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\Verdana.ttf", 16.5);
+		font_spectators = ImGui::GetIO().Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\Verdana.ttf", 17.5);
 		font_title = ImGui::GetIO().Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\Tahoma.ttf", 24);
 		font_child_title = ImGui::GetIO().Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\Verdana.ttf", 24);
 		font_weapon = ImGui::GetIO().Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\icon font.ttf", 28);
@@ -309,6 +309,8 @@ public:
 		float f_xqz_clr[4] = { 1.f, 1.f, 1.f, 1.f };
 		color xqz_clr = color(255, 105, 255);
 		bool auto_strafer = false;
+		bool movement_blocker = false;
+		bool disable_occulusion = true;
 	};
 	Config config;
 

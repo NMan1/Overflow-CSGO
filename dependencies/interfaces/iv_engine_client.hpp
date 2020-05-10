@@ -26,6 +26,8 @@ struct player_info_t {
 	unsigned char filesdownloaded;
 };
 
+class i_spatial_query;
+
 class iv_engine_client {
 public:
 	i_net_channel* get_net_channel_info() {
@@ -83,5 +85,10 @@ public:
 	const char* get_level_name() {
 		using original_fn = const char* (__thiscall*)(iv_engine_client*);
 		return (*(original_fn * *)this)[53](this);
+	}	
+	
+	i_spatial_query* get_bsp_tree_query() {
+		using original_fn = i_spatial_query*(__thiscall*)(iv_engine_client*);
+		return (*(original_fn * *)this)[43](this);
 	}
 };

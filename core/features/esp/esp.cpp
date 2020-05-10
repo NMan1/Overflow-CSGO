@@ -149,6 +149,9 @@ void features::visuals::render_esp()
 				render::draw_text_string(bbox.x - 20 - (right / 2), bbox.y - 1.5, render::fonts::verdana_font_small, s_health, false, color(255, 255, 255));
 		}
 
+		if (!entity)
+			return;
+
 		if (menu.config.name)
 		{
 			player_info_t info;
@@ -161,8 +164,12 @@ void features::visuals::render_esp()
 		
 		if (menu.config.weapon_icon)
 		{
-			auto wep_name = entity->active_weapon()->get_icon();
-			render::draw_text_string(bbox.x + (bbox.w / 2), bbox.h + bbox.y - 2, render::fonts::weapon_font, wep_name, true, menu.config.wep_icon_clr);
+			auto wep = entity->active_weapon();
+			if (wep)
+			{
+				auto wep_name = wep->get_icon();
+				render::draw_text_string(bbox.x + (bbox.w / 2), bbox.h + bbox.y - 2, render::fonts::weapon_font, wep_name, true, menu.config.wep_icon_clr);
+			}
 		}
 
 		if (menu.config.gun)
@@ -170,8 +177,12 @@ void features::visuals::render_esp()
 			int height = bbox.h + bbox.y + 2;
 			if (menu.config.weapon_icon)
 				height = bbox.h + bbox.y + 16;
-			auto wep_name = entity->active_weapon()->get_weapon_data()->m_szWeaponName;
-			render::draw_text_string(bbox.x + (bbox.w / 2), height, render::fonts::verdana_font, clean_item_name(wep_name), true, menu.config.wep_name_clr);
+			auto wep = entity->active_weapon();
+			if (wep)
+			{
+				auto wep_name = wep->get_weapon_data()->m_szWeaponName;
+				render::draw_text_string(bbox.x + (bbox.w / 2), height, render::fonts::verdana_font, clean_item_name(wep_name), true, menu.config.wep_name_clr);
+			}
 		}
 
 		std::vector<std::pair<std::string, color>> flags;

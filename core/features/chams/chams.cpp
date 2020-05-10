@@ -49,7 +49,6 @@ void custom_materials()
             "$znearer"      "0"
             "$flat"         "0"
 			"$phong"		"1"
-			"$rimlight"		"1"
         })#";	
 
 	std::ofstream("csgo/materials/overflow_textured_xqz.vmt") << R"#("VertexLitGeneric" {
@@ -83,7 +82,6 @@ void custom_materials()
       "$flat" "1"
       "$reflectivity" "1"
 	  "$phong" "1"
-	  "$rimlight" "1"
 }
 )#";	
 	std::ofstream("csgo\\materials\\sensum_reflective_xqz.vmt") << R"#("VertexLitGeneric"

@@ -12,6 +12,7 @@ hooks::lock_cursor::fn		lock_cursor_original		= nullptr;
 hooks::get_view_model::fn	get_view_model_original		= nullptr;
 hooks::overide_view::fn		overide_view_original		= nullptr;
 hooks::fsn::fn				fsn_original				= nullptr;
+hooks::list_leaves::fn		list_leaves_original		= nullptr;
 
 uint8_t*					present_address				= nullptr;
 uint8_t*					reset_address				= nullptr;
@@ -20,6 +21,7 @@ HWND						hooks::hCSGOWindow			= nullptr;
 WNDPROC						hooks::pOriginalWNDProc		= nullptr;
 bool						hooks::initialized_drawManager = false;
 color						watermark					= (255, 59, 59);
+uintptr_t					p_list_leaves;
 
 unsigned int get_virtual(void* class_, unsigned int index) { return (unsigned int)(*(int**)class_)[index]; }
 extern LRESULT ImGui_ImplDX9_WndProcHandler(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam);
@@ -50,6 +52,7 @@ bool hooks::initialize()
 	auto lock_cursor_target = reinterpret_cast<void*>(get_virtual(interfaces::surface, 67));
 	auto in_key_event_target = reinterpret_cast<void*>(get_virtual(interfaces::client, 21));
 	auto fsn_target = reinterpret_cast<void*>(get_virtual(interfaces::client, 37));
+	auto list_leaves_target = reinterpret_cast<void*>(get_virtual(interfaces::engine->get_bsp_tree_query(), 6));
 	auto present_address = utilities::pattern_scan(GetModuleHandleW(L"gameoverlayrenderer.dll"), "FF 15 ? ? ? ? 8B F8 85 DB") + 0x2;
 	auto reset_address = utilities::pattern_scan(GetModuleHandleW(L"gameoverlayrenderer.dll"), "FF 15 ? ? ? ? 8B F8 85 FF 78 18") + 0x2;
 
@@ -92,6 +95,11 @@ bool hooks::initialize()
 	if (MH_CreateHook(fsn_target, &fsn::hook, reinterpret_cast<void**>(&fsn_original)) != MH_OK) {
 		throw std::runtime_error("failed to initialize fsn. (outdated index?)");
 		return false;
+	}	
+
+	if (MH_CreateHook(list_leaves_target, &list_leaves::hook, reinterpret_cast<void**>(&list_leaves_original)) != MH_OK) {
+		throw std::runtime_error("failed to initialize list_leaves. (outdated index?)");
+		return false;
 	}
 
 	if (MH_CreateHook(get_view_model_target, &get_view_model::hook, reinterpret_cast<void**>(&get_view_model_original)) != MH_OK) {
@@ -108,7 +116,7 @@ bool hooks::initialize()
 		throw std::runtime_error("failed to initialize paint_traverse. (outdated index?)");
 		return false;
 	}	
-
+	
 	if (MH_CreateHook(lock_cursor_target, &lock_cursor::hook, reinterpret_cast<void**>(&lock_cursor_original)) != MH_OK) {
 		throw std::runtime_error("failed to initialize lock_cursor. (outdated index?)");
 		return false;
@@ -120,6 +128,7 @@ bool hooks::initialize()
 	}
 
 	interfaces::engine->get_screen_size(menu.screen_x, menu.screen_y);
+	p_list_leaves = (uintptr_t)utilities::pattern_scan(GetModuleHandleW(L"client_panorama"), "56 52 FF 50 18") + 5;
 
 	console::log("[setup] hooks initialized!\n");
 	return true;
@@ -204,40 +213,9 @@ bool __fastcall hooks::create_move::hook(void* ecx, void* edx, int input_sample_
 
 	if (menu.config.auto_strafer)
 		features::misc::auto_strafer(cmd);
-
-	player_t* ground_entity = (player_t*)interfaces::entity_list->get_client_entity_handle(csgo::local_player->ground_entity());
-
-	// Check if there's a player under us.
-	if (ground_entity && ground_entity->client_class()->class_id == class_ids::ccsplayer)
-	{
-		// Get the target's speed.
-		vec3_t Velocity = ground_entity->velocity();
-		const auto Speed = Velocity.Length2D();
-
-		if (Speed > 0.0f)
-		{
-			// Get the angles direction based on the target's speed.
-			vec3_t Direction;
-			math::vector_angles(Velocity, Direction);
-
-			vec3_t ViewAngles;
-			interfaces::engine->get_view_angles(ViewAngles);
-
-			// Cut down on our viewangles.
-			Direction.y = ViewAngles.y - Direction.y;
-
-			// Transform into vector again.
-			vec3_t Forward;
-			math::angle_vector(Direction, Forward);
-
-			// Calculate the new direction based on the target's speed.
-			vec3_t NewDirection = Forward * Speed;
-
-			// Move accordingly.
-			cmd->forwardmove = NewDirection.x;
-			cmd->sidemove = NewDirection.y;
-		}
-	}
+	
+	if (menu.config.movement_blocker)
+		features::misc::movement_blocker(cmd);
 
 	return false;
 }
@@ -275,6 +253,37 @@ long __stdcall hooks::reset::hook(IDirect3DDevice9 * device, D3DPRESENT_PARAMETE
 	menu.create_objects(device);
 
 	return hr;
+}
+
+// pasted
+int __fastcall hooks::list_leaves::hook(void* bsp, void* edx, vec3_t& mins, vec3_t& maxs, unsigned short* list, int listMax)
+{
+	if (std::uintptr_t(_ReturnAddress()) == p_list_leaves)
+	{
+		if (const auto info = *reinterpret_cast<RenderableInfo_t**>(std::uintptr_t(_AddressOfReturnAddress()) + 0x14); info && info->renderable) 
+		{
+			auto base_entity = info->renderable->GetIClientUnknown()->GetBaseEntity();
+			if (base_entity)
+			{
+				if (base_entity->is_player())
+				{
+					if (menu.config.disable_occulusion)
+					{
+						// FIXME: sometimes players are rendered above smoke, maybe sort render list?
+						info->flags &= ~0x100;
+						info->flags2 |= 0xC0;
+
+						constexpr float maxCoord = 16384.0f;
+						constexpr float minCoord = -maxCoord;
+						static vec3_t min{ minCoord, minCoord, minCoord };
+						static vec3_t max{ maxCoord, maxCoord, maxCoord };
+						return list_leaves_original(bsp, min, max, list, listMax);
+					}
+				}
+			}
+		}
+	}
+	return list_leaves_original(bsp, mins, maxs, list, listMax);
 }
 
 void __fastcall hooks::dme::hook(void* thisptr, void* edx, void* ctx, void* state, const model_render_info_t& info, matrix3x4_t* custom_bone_to_world)

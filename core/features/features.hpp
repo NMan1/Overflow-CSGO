@@ -11,6 +11,7 @@ namespace features {
 	namespace misc {
 		void bunny_hop(c_usercmd* cmd);
 		void auto_strafer(c_usercmd* cmd);
+		void movement_blocker(c_usercmd* cmd);
 		void thirdperson();
 		void auto_pistol(c_usercmd* cmd);
 		void quick_peak(c_usercmd* cmd);
