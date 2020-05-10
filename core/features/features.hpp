@@ -23,6 +23,7 @@ namespace features {
 		void render_esp();
 		void render_visuals();
 		void dme_chams_run(hooks::dme::fn original, void* thisptr, void* context, void* state, const model_render_info_t& info, matrix3x4_t* custom_bone_to_world);
+		void dme_misc(const model_render_info_t& info);
 		void scene_chams_run();
 	};
 	namespace skins {

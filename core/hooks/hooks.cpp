@@ -288,6 +288,7 @@ int __fastcall hooks::list_leaves::hook(void* bsp, void* edx, vec3_t& mins, vec3
 
 void __fastcall hooks::dme::hook(void* thisptr, void* edx, void* ctx, void* state, const model_render_info_t& info, matrix3x4_t* custom_bone_to_world)
 {
+	features::visuals::dme_misc(info);
 	features::visuals::dme_chams_run(dme_original, thisptr, ctx, state, info, custom_bone_to_world);
 }
 

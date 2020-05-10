@@ -311,6 +311,12 @@ public:
 		bool auto_strafer = false;
 		bool movement_blocker = false;
 		bool disable_occulusion = true;
+		bool sleeve_chams = false;
+		float f_sleeve_chams[4] = { 1.f, 1.f, 1.f, 1.f };
+		color sleeve_chams_clr = color(255, 105, 255);		
+		bool arms_chams = false;
+		float f_arms_chams[4] = { 1.f, 1.f, 1.f, 1.f };
+		color arms_chams_clr = color(255, 105, 255);
 	};
 	Config config;
 

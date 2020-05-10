@@ -39,3 +39,5 @@ struct color {
 	static color green(int a = 255) { return { 0, 255, 0, a }; }
 	static color blue(int  a = 255) { return { 0, 0, 255, a }; }
 };
+
+

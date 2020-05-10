@@ -102,6 +102,7 @@ void update_colors()
 	menu.config.wep_name_clr = color(menu.config.f_wep_name[0] * 255, menu.config.f_wep_name[1] * 255, menu.config.f_wep_name[2] * 255, menu.config.f_wep_name[3] * 255);
 	menu.config.wep_icon_clr = color(menu.config.f_wep_icon[0] * 255, menu.config.f_wep_icon[1] * 255, menu.config.f_wep_icon[2] * 255, menu.config.f_wep_icon[3] * 255);
 	menu.config.xqz_clr = color(menu.config.f_xqz_clr[0] * 255, menu.config.f_xqz_clr[1] * 255, menu.config.f_xqz_clr[2] * 255, menu.config.f_xqz_clr[3] * 255);
+	menu.config.sleeve_chams_clr = color(menu.config.f_sleeve_chams[0] * 255, menu.config.f_sleeve_chams[1] * 255, menu.config.f_sleeve_chams[2] * 255, menu.config.f_sleeve_chams[3] * 255);
 }
 
 void Menu::render()
@@ -507,10 +508,14 @@ void Menu::visuals_tab()
 		ImGui::Custom::ChildSettingsInside(7, active);
 		ImGui::Checkbox("Enable Chams", &menu.config.chams);
 		ImGui::ColorEdit4("chams color", menu.config.f_chams_clr, ImGuiColorEditFlags_NoInputs);
-		ImGui::Text("Chams Material");
-		ImGui::Combo("##Chams Material", &menu.config.chams_type, chams_type, IM_ARRAYSIZE(chams_type));
+		ImGui::SameLine();
+		ImGui::SetCursorPosX(399 - 175);
+		ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 5);
 		ImGui::Checkbox("XQZ", &menu.config.chams_xqz);
 		ImGui::ColorEdit4("xqz color", menu.config.f_xqz_clr, ImGuiColorEditFlags_NoInputs);
+		ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 5);
+		ImGui::Text("Chams Material");
+		ImGui::Combo("##Chams Material", &menu.config.chams_type, chams_type, IM_ARRAYSIZE(chams_type));	
 		ImGui::Checkbox("Show Team", &menu.config.team_check_chams);
 		ImGui::ColorEdit4("team chams coilor", menu.config.f_chams_team_clr, ImGuiColorEditFlags_NoInputs);
 		ImGui::SameLine();
@@ -518,7 +523,14 @@ void Menu::visuals_tab()
 		ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 5);
 		ImGui::Checkbox("Local Chams", &menu.config.local_chams);
 		ImGui::ColorEdit4("local chams clr", menu.config.f_chams_local_clr, ImGuiColorEditFlags_NoInputs);
+		ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 5);
 		ImGui::Checkbox("Wireframe", &menu.config.wireframe);
+		ImGui::SameLine();
+		ImGui::SetCursorPosX(399 - 175);
+		ImGui::Checkbox("Sleeve Chams", &menu.config.sleeve_chams);
+		ImGui::ColorEdit4("sleve clr", menu.config.f_sleeve_chams, ImGuiColorEditFlags_NoInputs);		
+		ImGui::Checkbox("Arms Chams", &menu.config.arms_chams);
+		ImGui::ColorEdit4("arms clr", menu.config.f_arms_chams, ImGuiColorEditFlags_NoInputs);
 	} ImGui::EndChild(true, menu.font_child_title, main_red);
 	ImGui::Custom::ChildSettingsEnd();
 
@@ -529,9 +541,20 @@ void Menu::visuals_tab()
 	ImGui::SetCursorPosX(427);
 
 	ImGui::Custom::ChildSettings(8, active);
-	ImGui::BeginChild("##World", ImVec2(399, 213), true, ImGuiWindowFlags_AlwaysUseWindowPadding);
+	ImGui::BeginChild("##Misc", ImVec2(399, 109), true, ImGuiWindowFlags_AlwaysUseWindowPadding);
 	{		
 		ImGui::Custom::ChildSettingsInside(8, active);
+
+	} ImGui::EndChild(true, menu.font_child_title, main_red);
+	ImGui::Custom::ChildSettingsEnd();	
+
+	ImGui::SetCursorPosY(396);
+	ImGui::SetCursorPosX(427);
+
+	ImGui::Custom::ChildSettings(9, active);
+	ImGui::BeginChild("##World", ImVec2(399, 90), true, ImGuiWindowFlags_AlwaysUseWindowPadding);
+	{		
+		ImGui::Custom::ChildSettingsInside(9, active);
 
 		ImGui::Checkbox("Disable Post Processing", &menu.config.disbale_post_processing);
 		ImGui::Checkbox("Disable Occulusion", &menu.config.disable_occulusion);
