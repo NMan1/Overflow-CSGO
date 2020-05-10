@@ -9,9 +9,6 @@ https://github.com/designer1337/csgo-cheat-base
 
 Make sure to install the included font to prevent crashing (double click file and click install at top left)
 Also you may need to change the font paths.
-# Menu:
+# Pictures:
 
-<img src="https://i.gyazo.com/18b0c42303aeec8135d76dad8ab2cff7.png"/>  
-<img src="https://i.gyazo.com/f9209b56735f3e4bb6a07ff79a99c776.png"/> 
-<img src="https://i.gyazo.com/50cf6c312ed1d2bf13e3943b3016c68d.png"/> 
-<img src="https://i.gyazo.com/4012d58a4fa41edf00a308a8a4c8cc3f.png"/> 
+<img src="https://i.gyazo.com/cd7b462b74e9fb080425e71fc70895a1.jpg"/>  
