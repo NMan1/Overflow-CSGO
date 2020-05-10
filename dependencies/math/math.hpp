@@ -8,7 +8,7 @@ namespace math {
 	vec3_t calculate_angle_alternative(const vec3_t& a, const vec3_t& b);
 	vec3_t calculate_angle(const vec3_t& source, const vec3_t& destination, const vec3_t& viewAngles);
 	void sin_cos(float r, float* s, float* c);
-	vec3_t angle_vector(vec3_t angle);
+	void angle_vector(vec3_t angle, vec3_t& vector);
 	void transform_vector(vec3_t&, matrix_t&, vec3_t&);
 	void vector_angles(vec3_t&, vec3_t&);
 	void angle_vectors(vec3_t&, vec3_t*, vec3_t*, vec3_t*);

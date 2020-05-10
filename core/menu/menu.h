@@ -102,6 +102,7 @@ public:
 		ImGui::CreateContext();
 
 		font_menu = ImGui::GetIO().Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\Verdana.ttf", 20);
+		font_spectators = ImGui::GetIO().Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\Verdana.ttf", 16.5);
 		font_title = ImGui::GetIO().Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\Tahoma.ttf", 24);
 		font_child_title = ImGui::GetIO().Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\Verdana.ttf", 24);
 		font_weapon = ImGui::GetIO().Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\icon font.ttf", 28);
@@ -314,11 +315,12 @@ public:
 	std::vector <std::string> spectators = {};
 	int vec_size = 0;
 	int new_vec_size = 0;
-	int spec_width = 30;
+	int spec_height = 30;
 private:
 	ImFont* font_title = nullptr;
 	ImFont* font_child_title = nullptr;
 	ImFont* font_menu = nullptr;
+	ImFont* font_spectators = nullptr;
 	ImFont* font_weapon = nullptr;
 
 	void change_log();

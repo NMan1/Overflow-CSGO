@@ -199,10 +199,45 @@ bool __fastcall hooks::create_move::hook(void* ecx, void* edx, int input_sample_
 	cmd->viewangles.y = std::clamp(cmd->viewangles.y, -180.0f, 180.0f);
 	cmd->viewangles.z = 0.0f;
 
+	// movement features
 	features::misc::quick_peak(cmd);
 
 	if (menu.config.auto_strafer)
 		features::misc::auto_strafer(cmd);
+
+	player_t* ground_entity = (player_t*)interfaces::entity_list->get_client_entity_handle(csgo::local_player->ground_entity());
+
+	// Check if there's a player under us.
+	if (ground_entity && ground_entity->client_class()->class_id == class_ids::ccsplayer)
+	{
+		// Get the target's speed.
+		vec3_t Velocity = ground_entity->velocity();
+		const auto Speed = Velocity.Length2D();
+
+		if (Speed > 0.0f)
+		{
+			// Get the angles direction based on the target's speed.
+			vec3_t Direction;
+			math::vector_angles(Velocity, Direction);
+
+			vec3_t ViewAngles;
+			interfaces::engine->get_view_angles(ViewAngles);
+
+			// Cut down on our viewangles.
+			Direction.y = ViewAngles.y - Direction.y;
+
+			// Transform into vector again.
+			vec3_t Forward;
+			math::angle_vector(Direction, Forward);
+
+			// Calculate the new direction based on the target's speed.
+			vec3_t NewDirection = Forward * Speed;
+
+			// Move accordingly.
+			cmd->forwardmove = NewDirection.x;
+			cmd->sidemove = NewDirection.y;
+		}
+	}
 
 	return false;
 }

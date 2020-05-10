@@ -539,6 +539,7 @@ public:
 	NETVAR("DT_CSPlayer", "m_bHasHeavyArmor", has_heavy_armor, bool);
 	NETVAR("DT_SmokeGrenadeProjectile", "m_nSmokeEffectTickBegin", smoke_grenade_tick_begin, int);
 	NETVAR("DT_CSPlayer", "m_nTickBase", get_tick_base, int);
+	NETVAR("DT_BasePlayer", "m_hGroundEntity", ground_entity, uintptr_t);
 
 	bool has_c4() {
 		static auto fn = reinterpret_cast<bool(__thiscall*)(void*)>(utilities::pattern_scan(GetModuleHandleA("client_panorama.dll"), "56 8B F1 85 F6 74 31"));
@@ -674,8 +675,7 @@ public:
 	int move_type() {
 		static int type = netvar_manager::get_netvar_offset("DT_BaseEntity", "m_nRenderMode") + 1;
 		return read<int>(type);
-	}
-
+	}	
 };
 
 

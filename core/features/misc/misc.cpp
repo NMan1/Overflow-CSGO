@@ -32,9 +32,12 @@ void features::misc::auto_strafer(c_usercmd* cmd)
 {
 	static bool flip = true;
 
-	if (csgo::local_player->flags() & fl_onground && !(cmd->buttons & in_jump))
+	if (!csgo::local_player || !csgo::local_player->is_alive())
 		return;
 
+	if (csgo::local_player->flags() & fl_onground)
+		return;
+	
 	cmd->forwardmove = 0.0f;
 	cmd->sidemove = 0.0f;
 

@@ -214,7 +214,7 @@ void Menu::change_log()
 
 		ImGui::Text(version.c_str());
 		ImGui::SameLine();
-		ImGui::SetCursorPosX((826 - 14) - 400);
+		ImGui::SetCursorPosX((826 - 14) - 300);
 		ImGui::Text("Build Date: " __DATE__ " / " __TIME__);
 
 		ImGui::Separator();
@@ -566,6 +566,8 @@ void Menu::misc_tab()
 		ImGui::SetCursorPosX(399 - 175);
 		ImGui::Checkbox("Spectator List", &menu.config.spectator_list);
 		ImGui::Hotkey("##QuickPeakKey", &menu.config.quick_peak_pair.first, ImVec2(150, 30));
+		ImGui::SameLine();
+		ImGui::SetCursorPosX(399 - 175);
 		ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 5);
 		ImGui::Checkbox("No Scope", &menu.config.no_scope);
 	} ImGui::EndChild(true, menu.font_child_title, main_red);
@@ -824,30 +826,27 @@ void Menu::settings_tab()
 
 void Menu::spectator_list()
 {
-	menu.vec_size = menu.spectators.size();
-	if (menu.vec_size > menu.new_vec_size)
-	{
-		menu.spec_width += (20 * menu.vec_size);
-		menu.new_vec_size = menu.vec_size;
-	}
-	else if (menu.new_vec_size > menu.vec_size)
-		menu.spec_width -= (20 * menu.vec_size);  //NewVecSize = 0;
+	menu.spec_height = menu.spectators.size() * 10;
+	if (menu.spectators.empty())
+		menu.spec_height = 30;
 
-	ImGui::SetNextWindowSize(ImVec2(175, menu.spec_width));
+	ImGui::SetNextWindowSize(ImVec2(175, menu.spec_height));
 	ImGui::SetNextWindowPos(ImVec2(1700, 260), ImGuiCond_Once);
 	ImGui::Begin("Spectators", 0, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoTitleBar);
 	{
 		ImGui::SetCursorPosX((175 - ImGui::CalcTextSize("Spectators").x)*.5);
+		ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 2.5);
 		ImGui::Text("Spectators");
 		ImGui::Separator();
 		if (!menu.spectators.empty())
 		{
-			int size = menu.spectators.size();
-			for (int i = 0; i < size; i++)
+			ImGui::PushFont(menu.font_spectators);
+			for (int i = 0; i < menu.spectators.size(); i++)
 			{
+				ImGui::SetCursorPosX((175 - ImGui::CalcTextSize(menu.spectators[i].c_str()).x) * .5);
 				ImGui::Text(menu.spectators[i].c_str());
-				size = menu.spectators.size();
 			}
+			ImGui::PopFont();
 		}
 	}
 	ImGui::End();

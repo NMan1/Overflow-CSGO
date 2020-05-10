@@ -252,6 +252,13 @@ void nightmode()
 void update_spectators()
 {
 	std::vector<std::string> Name;
+
+	if (!csgo::local_player->is_alive() || !interfaces::engine->is_in_game())
+	{
+		menu.spectators.clear();
+		return;
+	}
+
 	for (int i = 1; i < interfaces::globals->max_clients; i++)
 	{
 		if (csgo::local_player)
@@ -270,19 +277,17 @@ void update_spectators()
 					{
 						player_info_t info_entity;
 						interfaces::engine->get_player_info(i, &info_entity);
-
 						Name.push_back(info_entity.name);
-						//std::transform(Name.begin(), Name.end(), Name.begin(), ::tolower);
-						//g_Render.String(SPoint(width - 80, height / 2 + (10 * SpecIndex)), CD3DFONT_NONE, g_Settings.Visuals.cSpecList, g_Fonts.pFontTahoma10.get(), Name);
 					}
 				}
 			}
 		}
-		else if (!csgo::local_player->is_alive() || !interfaces::engine->is_in_game())
-			Name.clear();
-
-		menu.spectators = Name;
 	}
+
+	if (Name.empty())
+		Name.clear();
+
+	menu.spectators = Name;
 }
 
 void features::visuals::render_visuals()

@@ -99,14 +99,14 @@ void math::sin_cos(float r, float* s, float* c) {
 	*c = cos(r);
 }
 
-vec3_t math::angle_vector(vec3_t angle) {
+void math::angle_vector(vec3_t angle, vec3_t& vector) {
 	auto sy = sin(angle.y / 180.f * static_cast<float>(M_PI));
 	auto cy = cos(angle.y / 180.f * static_cast<float>(M_PI));
 
 	auto sp = sin(angle.x / 180.f * static_cast<float>(M_PI));
 	auto cp = cos(angle.x / 180.f * static_cast<float>(M_PI));
 
-	return vec3_t(cp * cy, cp * sy, -sp);
+	vector = vec3_t(cp * cy, cp * sy, -sp);
 }
 
 void math::transform_vector(vec3_t & a, matrix_t & b, vec3_t & out) {
