@@ -12,6 +12,7 @@ Injecting Steps:
 2. go to, C:\Users\your name\Documents and create a folder called "overflow
 3. add the Default file config included in the git to that folder.
 4. Build in x86 and manual map.
+5. Add -disable_d3d9ex in steam csgo launch options for skins to not be black
 
 In the future ill remove the need for manually creating the directory 
 
