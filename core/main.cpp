@@ -1,6 +1,7 @@
 #include "../dependencies/common_includes.hpp"
 #include "features/features.hpp"
-
+#include <urlmon.h>    
+#pragma comment(lib, "Urlmon")
 
 DWORD WINAPI initialize(void* instance)
 {
@@ -12,8 +13,11 @@ DWORD WINAPI initialize(void* instance)
 		interfaces::initialize();
 		hooks::initialize();
 		render::initialize();
-		menu.run("overflow");
 
+		menu.run("overflow");
+		// download default config
+		//if (!std::filesystem::is_regular_file(menu.path.string() + "\\Default"))
+		//	URLDownloadToFile(NULL, "https://filebin.net//3knor6tw8402eau6//Default?t=1szg7ni9", menu.path.string().c_str(), 0, NULL);
 		menu.load(0);
 	}
 	catch (const std::runtime_error & error) 
