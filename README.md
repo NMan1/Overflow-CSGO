@@ -7,6 +7,7 @@ Written in snake case (for the most part, %95)
 Base used:
 https://github.com/designer1337/csgo-cheat-base
 
+Make sure to install the included font to prevent crashing (double click file and click install at top left)
 # Menu:
 
 <img src="https://i.gyazo.com/18b0c42303aeec8135d76dad8ab2cff7.png"/>  
