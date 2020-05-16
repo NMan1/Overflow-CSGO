@@ -7,8 +7,15 @@ Written in snake case (for the most part, %95)
 Base used:
 https://github.com/designer1337/csgo-cheat-base
 
-Make sure to install the included font to prevent crashing (double click file and click install at top left)
-Also you may need to change the font paths.
+Injecting Steps:
+1. Download the git and install the included .tff font icon file
+2. go to, C:\Users\your name\Documents and create a folder called "overflow
+3. add the Default file config included in the git to that folder.
+4. Build in x86 and manual map.
+5. Add -disable_d3d9ex in steam csgo launch options for skins to not be black
+
+In the future ill remove the need for manually creating the directory 
+
 # Pictures:
 
 <img src="https://i.gyazo.com/cd7b462b74e9fb080425e71fc70895a1.jpg"/>  
