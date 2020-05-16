@@ -46,3 +46,38 @@ std::uint8_t* utilities::pattern_scan(void* module, const char* signature) {
 	}
 	return nullptr;
 }
+
+template<class T>
+static T* find_hud_element(const char* name) {
+	static auto fn = *reinterpret_cast<DWORD**>(utilities::pattern_scan(GetModuleHandleA("client_panorama.dll"), ("B9 ? ? ? ? E8 ? ? ? ? 8B 5D 08")) + 1);
+
+	static auto find_hud_element = reinterpret_cast<DWORD(__thiscall*)(void*, const char*)>(utilities::pattern_scan(GetModuleHandleA("client_panorama.dll"), ("55 8B EC 53 8B 5D 08 56 57 8B F9 33 F6 39 77 28")));
+	return (T*)find_hud_element(fn, name);
+}
+
+struct hud_weapons_t {
+	std::int32_t* get_weapon_count() {
+		return reinterpret_cast<std::int32_t*>(std::uintptr_t(this) + 0x80);
+	}
+};
+
+void utilities::force_update() 
+{
+	static auto fn = reinterpret_cast<std::int32_t(__thiscall*)(void*, std::int32_t)>(utilities::pattern_scan(GetModuleHandleA("client_panorama.dll"), ("55 8B EC 51 53 56 8B 75 08 8B D9 57 6B FE 2C")));
+	if (!fn)
+		return;
+
+	auto element = find_hud_element<std::uintptr_t*>(("CCSGO_HudWeaponSelection"));
+
+	auto hud_weapons = reinterpret_cast<hud_weapons_t*>(std::uintptr_t(element) - 0xA0);
+	if (hud_weapons == nullptr)
+		return;
+
+	if (!*hud_weapons->get_weapon_count())
+		return;
+
+	for (std::int32_t i = 0; i < *hud_weapons->get_weapon_count(); i++)
+		i = fn(hud_weapons, i);
+
+	interfaces::clientstate->full_update();
+}

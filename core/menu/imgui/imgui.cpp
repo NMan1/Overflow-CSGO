@@ -3581,6 +3581,7 @@ void ImGui::EndChild(bool shadow, ImFont* font, ImVec4 color) {
 		}
 	}
 
+	// aids
 	if (shadow) {
 		std::string window_title(window->Name);
 		window_title = remove_spaces(window_title);
@@ -6378,7 +6379,7 @@ bool ImGui::SliderFloat(const char* label, float* v, float v_min, float v_max, c
 	const float w = width;
 
 	const ImVec2 label_size = CalcTextSize(label, NULL, true);
-	const ImRect frame_bb(window->DC.CursorPos, window->DC.CursorPos + ImVec2(w, label_size.y + style.FramePadding.y * 0.f - 5));
+	const ImRect frame_bb(window->DC.CursorPos, window->DC.CursorPos + ImVec2(w, label_size.y + style.FramePadding.y * 0.f - 5) - ImVec2(0, 2));
 	const ImRect total_bb(frame_bb.Min, frame_bb.Max + ImVec2(label_size.x > 0.0f ? style.ItemInnerSpacing.x + label_size.x : 0.0f, 2.0f));
 
 	// NB- we don't call ItemSize() yet because we may turn into a text edit box below
@@ -6424,7 +6425,7 @@ bool ImGui::SliderFloat(const char* label, float* v, float v_min, float v_max, c
 	// RenderTextClipped( frame_bb.Min - ImVec2( 0, 17 ), frame_bb.Max - ImVec2( 0, 14 ), value_buf, value_buf_end, NULL, ImVec2( 1.f, 1.f ) );
 
 	if (label_size.x > 0.0f)
-		RenderText(ImVec2(frame_bb.Min.x + 1, frame_bb.Min.y - 25), label);
+		RenderText(ImVec2(frame_bb.Min.x, frame_bb.Min.y - 25), label);
 
 	PopStyleColor();
 
@@ -6497,11 +6498,11 @@ bool ImGui::SliderAngle(const char* label, float* v_rad, float v_degrees_min, fl
 	return value_changed;
 }
 
-bool ImGui::SliderInt(const char* label, int* v, int v_min, int v_max, const char* display_format) {
+bool ImGui::SliderInt(const char* label, int* v, int v_min, int v_max, const char* display_format, float width) {
 	if (!display_format)
 		display_format = "%.0f";
 	float v_f = (float)*v;
-	bool value_changed = SliderFloat(label, &v_f, (float)v_min, (float)v_max, display_format, 1.0f);
+	bool value_changed = SliderFloat(label, &v_f, (float)v_min, (float)v_max, display_format, 1.0f, width);
 	*v = (int)v_f;
 	return value_changed;
 }
@@ -8425,7 +8426,7 @@ bool ImGui::Combo(const char* label, int* current_item, bool(*items_getter)(void
 	ImGuiContext& g = *GImGui;
 	const ImGuiStyle& style = g.Style;
 	const ImGuiID id = window->GetID(label);
-	const float w = 275;//CalcItemWidth();
+	const float w = CalcItemWidth();
 
 	const ImVec2 label_size = CalcTextSize(label, NULL, true);
 	const ImRect frame_bb(window->DC.CursorPos, window->DC.CursorPos + ImVec2(w, label_size.y + style.FramePadding.y * 2.0f));

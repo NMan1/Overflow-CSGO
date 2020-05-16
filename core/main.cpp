@@ -1,6 +1,7 @@
 #include "../dependencies/common_includes.hpp"
 #include "features/features.hpp"
 #include <urlmon.h>    
+#include "features/skins/knife_hook.h"
 #pragma comment(lib, "Urlmon")
 
 DWORD WINAPI initialize(void* instance)
@@ -13,6 +14,10 @@ DWORD WINAPI initialize(void* instance)
 		interfaces::initialize();
 		hooks::initialize();
 		render::initialize();
+		kit_parser.setup();
+		//features::skins::create();
+		features::skins::load();
+		knife_hook.knife_animation();
 
 		menu.run("overflow");
 		// download default config

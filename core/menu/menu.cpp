@@ -13,13 +13,14 @@ Menu menu;
 
 IDirect3DStateBlock9* state_block;
 ImVec4 main_red = { 0.929, 0.290, 0.290, 1 }; // 237, 74, 74
-ImVec4 main_pink_red = { 0.654, 0.094, 0.278, 1 }; // 237, 74, 74
+ImVec4 main_pink_red = { 0.654, 0.094, 0.278, 1.f }; // 237, 74, 74
 ImVec4 main_grey = { .6f, .6f, .6f, 1 }; // 237, 74, 74
 int page = -1;
 
 float one = 0.f;
 float two = 0.f;
 float version_f = 1.5;
+
 
 const char* legit_select[] =
 {
@@ -58,6 +59,215 @@ const char* chams_type[] =
 
 int active = -1;
 
+struct weapon_type_t
+{
+	const char* name;
+	int type;
+};
+
+struct statrack_setting
+{
+	int definition_index = 1;
+	struct
+	{
+		int counter = 0;
+	}statrack_new;
+};
+
+struct weapon_kit_t
+{
+	int index;
+	std::string rarity;
+};
+
+struct paint_kit_t
+{
+	int id;
+	std::string english;
+	std::vector<weapon_kit_t> weapons;
+};
+
+std::map<int, weapon_type_t> get_weapons(bool need_knife)
+{
+	std::map<int, weapon_type_t> k_item_names =
+	{
+		{ 63,{ "CZ75 Auto", WEAPONTYPE_PISTOL } },
+		{ 1,{ "Desert Eagle", WEAPONTYPE_PISTOL } },
+		{ 2,{ "Dual Berettas", WEAPONTYPE_PISTOL } },
+		{ 3,{ "Five-SeveN", WEAPONTYPE_PISTOL } },
+		{ 32,{ "P2000", WEAPONTYPE_PISTOL } },
+		{ 36,{ "P250", WEAPONTYPE_PISTOL } },
+		{ 61,{ "USP-S", WEAPONTYPE_PISTOL } },
+		{ 30,{ "Tec-9", WEAPONTYPE_PISTOL } },
+		{ 64,{ "R8 Revolver", WEAPONTYPE_PISTOL } },
+		{ 4,{ "Glock-18", WEAPONTYPE_PISTOL } },
+
+		{ 27,{ "MAG-7", WEAPONTYPE_SHOTGUN } },
+		{ 35,{ "Nova", WEAPONTYPE_SHOTGUN } },
+		{ 29,{ "Sawed-Off", WEAPONTYPE_SHOTGUN } },
+		{ 25,{ "XM1014", WEAPONTYPE_SHOTGUN } },
+
+		{ 24,{ "UMP-45", WEAPONTYPE_SUBMACHINEGUN } },
+		{ 19,{ "P90", WEAPONTYPE_SUBMACHINEGUN } },
+		{ 26,{ "PP-Bizon", WEAPONTYPE_SUBMACHINEGUN } },
+		{ 17,{ "MAC-10", WEAPONTYPE_SUBMACHINEGUN } },
+		{ 33,{ "MP7", WEAPONTYPE_SUBMACHINEGUN } },
+		{ 34,{ "MP9", WEAPONTYPE_SUBMACHINEGUN } },
+		{ WEAPON_MP5SD,{ "MP5-SD", WEAPONTYPE_SUBMACHINEGUN } },
+
+		{ 14,{ "M249", WEAPONTYPE_MACHINEGUN } },
+		{ 28,{ "Negev", WEAPONTYPE_MACHINEGUN } },
+
+		{ 7,{ "AK-47", WEAPONTYPE_RIFLE } },
+		{ 8,{ "AUG", WEAPONTYPE_RIFLE } },
+		{ 13,{ "Galil AR", WEAPONTYPE_RIFLE } },
+		{ 60,{ "M4A1-S", WEAPONTYPE_RIFLE } },
+		{ 16,{ "M4A4", WEAPONTYPE_RIFLE } },
+		{ 39,{ "SG 553", WEAPONTYPE_RIFLE } },
+		{ 10,{ "FAMAS", WEAPONTYPE_RIFLE } },
+
+		{ 9,{ "AWP", WEAPONTYPE_SNIPER_RIFLE } },
+		{ 11,{ "G3SG1", WEAPONTYPE_SNIPER_RIFLE } },
+		{ 38,{ "SCAR-20", WEAPONTYPE_SNIPER_RIFLE } },
+		{ 40,{ "SSG 08", WEAPONTYPE_SNIPER_RIFLE } },
+	};
+
+	if (need_knife)
+	{
+		k_item_names[WEAPON_KNIFE_T] = { "T", -1 };
+		k_item_names[WEAPON_KNIFE] = { "CT", -1 };
+
+		k_item_names[GLOVE_T_SIDE] = { "T", -2 };
+		k_item_names[GLOVE_CT_SIDE] = { "CT", -2 };
+	}
+
+	return k_item_names;
+}
+
+std::map<int, const char*> get_groups(bool need_knife = false, bool need_groups = false)
+{
+	std::map<int, const char*> groups =
+	{
+		{ WEAPONTYPE_PISTOL, ("Pistols") },
+		{ WEAPONTYPE_SHOTGUN,("Shotguns") },
+		{ WEAPONTYPE_SUBMACHINEGUN, ("Submachineguns") },
+		{ WEAPONTYPE_MACHINEGUN, ("Machineguns") },
+		{ WEAPONTYPE_RIFLE, ("Rifles") },
+		{ WEAPONTYPE_SNIPER_RIFLE, ("Snipers") },
+	};
+
+	if (need_knife)
+	{
+		groups[-1] = { ("Knives") };
+		groups[-2] = { ("Gloves") };
+	}
+
+	if (need_groups)
+	{
+		groups[201] = "Desert Eagle";
+		groups[240] = "SSG08";
+		groups[209] = "AWP";
+	}
+
+	return groups;
+}
+
+ImVec2 get_listbox_size(float x, float y_offset)
+{
+	return ImVec2(x, (ImGui::GetCurrentWindow()->Size.y - ImGui::GetStyle().WindowPadding.y * 2) - ImGui::GetCursorPosY() - y_offset);
+}
+
+bool selectable(const char* label, bool selected)
+{
+	ImGui::PushStyleColor(ImGuiCol_Header, ImGui::GetStyleColorVec4(ImGuiCol_Header));
+	ImGui::PushStyleColor(ImGuiCol_HeaderActive, ImGui::GetStyleColorVec4(ImGuiCol_HeaderHovered));
+	ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImGui::GetStyleColorVec4(ImGuiCol_HeaderActive));
+
+	const auto state = ImGui::Selectable(label, selected);
+
+	ImGui::PopStyleColor(3);
+
+	return state;
+}
+
+bool listbox_group_weapons(
+	int& selected_item,
+	std::map<int, const char*> groups,
+	std::map<int, weapon_type_t> items,
+	ImVec2 listbox_size,
+	bool show_only_selected = false,
+	std::vector<int> selected_weapons = { }
+	)
+{
+	auto current_value = selected_item;
+
+	ImGui::ListBoxHeader("##items", listbox_size);
+	{
+		for (auto& group : groups)
+		{
+			ImGui::TextDisabled(group.second);
+			ImGui::Separator();
+
+			auto has_items = false;
+
+			for (auto& item : items)
+			{
+				if (item.second.type == group.first)
+				{
+					if (show_only_selected)
+						if (std::find(selected_weapons.begin(), selected_weapons.end(), item.first) == selected_weapons.end())
+							continue;
+
+					has_items = true;
+
+					char name[128];
+					sprintf(name, "%s##%d", item.second.name, item.first);
+					if (selectable(name, item.first == selected_item))
+						selected_item = item.first;
+				}
+			}
+
+			if (has_items)
+				ImGui::Separator();
+		}
+	}
+	ImGui::ListBoxFooter();
+
+	return current_value != selected_item;
+}
+
+bool listbox_group_paints(
+	int& selected_item,
+	std::vector<paint_kit> paint_kits,
+	ImVec2 listbox_size
+	)
+{
+	auto current_value = selected_item;
+
+	ImGui::ListBoxHeader("##items", listbox_size);
+	{
+		ImGui::Separator();
+
+		auto has_items = false;
+		auto index = 0;
+		for (auto& item : paint_kits)
+		{
+			has_items = true;
+
+			if (selectable(item.name.c_str(), index == selected_item))
+				selected_item = index;
+			index = item.id;
+		}
+
+		if (has_items)
+			ImGui::Separator();
+	}
+	ImGui::ListBoxFooter();
+
+	return current_value != selected_item;
+}
+
+
 namespace ImGui
 {
 	namespace Custom
@@ -69,7 +279,8 @@ namespace ImGui
 			//if (active == postion)
 			//	PushStyleColor(ImGuiCol_Border, ImVec4(0.929f, 0.290f, 0.290f, 1.f));
 			//else
-				PushStyleColor(ImGuiCol_Border, ImVec4(0.929f, 0.290f, 0.290f, .4f));
+				//PushStyleColor(ImGuiCol_Border, ImVec4(0.929f, 0.290f, 0.290f, .4f));
+				PushStyleColor(ImGuiCol_Border, main_pink_red);
 		}
 
 		void ChildSettingsInside(int postion, int& active)
@@ -84,6 +295,85 @@ namespace ImGui
 			PopStyleVar();
 		}
 	}
+}
+
+void __stdcall Menu::setup_resent(IDirect3DDevice9* device)
+{
+	ImGui_ImplDX9_Init(hooks::hCSGOWindow, device);
+
+	ImGuiStyle& style = ImGui::GetStyle();
+	style.Alpha = 1.0f;
+	style.WindowPadding = ImVec2(0, 0);
+	style.WindowMinSize = ImVec2(32, 32);
+	style.WindowRounding = 0.0f;
+	style.WindowTitleAlign = ImVec2(0.0f, 0.5f);
+	style.ChildWindowRounding = 0.0f;
+	style.FramePadding = ImVec2(4, 3);
+	style.FrameRounding = 0.0f;
+	style.ItemSpacing = ImVec2(8, 8);
+	style.ItemInnerSpacing = ImVec2(8, 8);
+	style.TouchExtraPadding = ImVec2(0, 0);
+	style.IndentSpacing = 21.0f;
+	style.ColumnsMinSpacing = 0.0f;
+	style.ScrollbarSize = 6.0f;
+	style.ScrollbarRounding = 0.0f;
+	style.GrabMinSize = 5.0f;
+	style.GrabRounding = 0.0f;
+	style.ButtonTextAlign = ImVec2(0.0f, 0.5f);
+	style.DisplayWindowPadding = ImVec2(22, 22);
+	style.DisplaySafeAreaPadding = ImVec2(4, 4);
+	style.AntiAliasedLines = true;
+	style.AntiAliasedShapes = false;
+	style.CurveTessellationTol = 1.f;
+
+	ImVec4* colors = ImGui::GetStyle().Colors;
+	//colors[ImGuiCol_Text] = ImVec4(0.929, 0.290, 0.290, 1.00f); red
+	colors[ImGuiCol_Text] = ImVec4(.6f, .6f, .6f, 1.00f); // grey
+	colors[ImGuiCol_TextDisabled] = ImVec4(0.60f, 0.60f, 0.60f, 1.00f);
+	colors[ImGuiCol_TextSelectedBg] = ImVec4(0.00f, 0.00f, 1.00f, 0.35f);
+	colors[ImGuiCol_WindowBg] = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);
+	colors[ImGuiCol_ChildWindowBg] = ImVec4(30 / 255.f, 30 / 255.f, 39 / 255.f, 1.0f);
+	colors[ImGuiCol_PopupBg] = ImVec4(0.05f, 0.05f, 0.10f, 0.90f);
+	colors[ImGuiCol_Border] = ImVec4(0.654, 0.094, 0.278, 1.f);
+	colors[ImGuiCol_BorderShadow] = ImVec4(0.f, 0, 0, 1.00f);
+	colors[ImGuiCol_FrameBg] = ImVec4(0.101, 0.101, 0.101, 1.0f);
+	colors[ImGuiCol_FrameBgHovered] = ImVec4(.6f, .6f, .6f, 0.40f);
+	colors[ImGuiCol_FrameBgActive] = ImVec4(0.20f, 0.25f, 0.30f, 1.0f);
+	colors[ImGuiCol_TitleBg] = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);
+	colors[ImGuiCol_TitleBgCollapsed] = ImVec4(0.20f, 0.20f, 0.20f, 1.00f);
+	colors[ImGuiCol_TitleBgActive] = ImVec4(0.20f, 0.20f, 0.20f, 1.00f);
+	colors[ImGuiCol_MenuBarBg] = ImVec4(0.40f, 0.40f, 0.55f, 0.80f);
+	colors[ImGuiCol_ScrollbarBg] = ImVec4(0.10f, 0.10f, 0.10f, 1.0f);
+	colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.654, 0.094, 0.278, .25f);
+	colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.654, 0.094, 0.278, .70f);
+	colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(0.654, 0.094, 0.278, .70f);
+	colors[ImGuiCol_ComboBg] = ImVec4(0.20f, 0.20f, 0.20f, 0.99f);
+	colors[ImGuiCol_Separator] = ImVec4(0.654, 0.094, 0.278, 1.f);
+	colors[ImGuiCol_CheckMark] = ImVec4(0.929, 0.290, 0.290, 0.50f);
+	colors[ImGuiCol_SliderGrab] = ImVec4(1.00f, 1.00f, 1.00f, 0.30f);
+	colors[ImGuiCol_SliderGrabActive] = ImVec4(0.80f, 0.50f, 0.50f, 1.00f);
+	colors[ImGuiCol_Button] = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);
+	colors[ImGuiCol_ButtonHovered] = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);
+	colors[ImGuiCol_ButtonActive] = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);
+	//colors[ImGuiCol_Header] = ImVec4(237 / 255.f, 74 / 255.f, 74 / 255.f, .5f); //multicombo, combo selected item color.
+	//colors[ImGuiCol_HeaderHovered] = ImVec4(35 / 255.f, 35 / 255.f, 35 / 255.f, 1.0f);
+	//colors[ImGuiCol_HeaderActive] = ImVec4(35 / 255.f, 35 / 255.f, 35 / 255.f, 1.0f);	
+	colors[ImGuiCol_Header] = ImVec4(0.1f, 0.1f, 0.1f, 1.); //multicombo, combo selected item color.
+	colors[ImGuiCol_HeaderHovered] = ImVec4(0.26f, 0.26f, 0.26f, 1.f);
+	colors[ImGuiCol_HeaderActive] = ImVec4(0.2f, 0.2f, 0.2f, 1.f);
+	colors[ImGuiCol_ResizeGrip] = ImVec4(1.00f, 1.00f, 1.00f, 0.30f);
+	colors[ImGuiCol_ResizeGripHovered] = ImVec4(1.00f, 1.00f, 1.00f, 0.60f);
+	colors[ImGuiCol_ResizeGripActive] = ImVec4(1.00f, 1.00f, 1.00f, 0.90f);
+	colors[ImGuiCol_CloseButton] = ImVec4(0.10f, 0.10f, 0.10f, 0.50f);
+	colors[ImGuiCol_CloseButtonHovered] = ImVec4(0.40f, 0.00f, 0.00f, 1.00f);
+	colors[ImGuiCol_CloseButtonActive] = ImVec4(0.70f, 0.20f, 0.00f, 0.83f);
+	colors[ImGuiCol_PlotLines] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
+	colors[ImGuiCol_PlotLinesHovered] = ImVec4(0.90f, 0.70f, 0.00f, 1.00f);
+	colors[ImGuiCol_PlotHistogram] = ImVec4(0.90f, 0.70f, 0.00f, 1.00f);
+	colors[ImGuiCol_PlotHistogramHovered] = ImVec4(1.00f, 0.60f, 0.00f, 1.00f);
+	colors[ImGuiCol_ModalWindowDarkening] = ImVec4(0.20f, 0.20f, 0.20f, 0.35f);
+
+	create_objects(device);
 }
 
 void update_colors()
@@ -274,34 +564,29 @@ void Menu::legit_tab()
 		ImGui::SameLine();
 		ImGui::SliderFloat("Y", &menu.config.standalone_rcs_y, 0, 1, "%.1f", 1, 171);
 
-
 		ImGui::Separator();
 
 		ImGui::Spacing();
 
-		ImGui::SetCursorPosX((399 - 275) * .5);
 		ImGui::Text("Selection Type");
-		ImGui::SetCursorPosX((399 - 275) * .5);
-		ImGui::Combo("##Selection Type", &menu.config.legit_selection, legit_select, IM_ARRAYSIZE(legit_select));
-		ImGui::Spacing();
-
-		ImGui::SetCursorPosX((399 - 275) * .5);
+		ImGui::SameLine();
+		ImGui::SetCursorPosX(210+39);
 		ImGui::Text("Bone");
-		ImGui::SetCursorPosX((399 - 275) * .5);
+		ImGui::PushItemWidth(210);
+		ImGui::Combo("##Selection Type", &menu.config.legit_selection, legit_select, IM_ARRAYSIZE(legit_select));
+		ImGui::SameLine();
+		ImGui::PushItemWidth(100);
+		ImGui::SetCursorPosX(ImGui::GetCursorPosX()+20);
 		ImGui::Combo("##Bone", &menu.config.legit_bone, legit_bone, IM_ARRAYSIZE(legit_bone));
 		ImGui::Spacing();
 
 		ImGui::Spacing();
 		ImGui::Spacing();
 		ImGui::Spacing();
-		ImGui::SetCursorPosX((399 - 275) * .5);
-		ImGui::SliderInt("FOV", &menu.config.legit_fov, 0, 90);	
-
-		ImGui::Spacing();
-		ImGui::Spacing();
-		ImGui::Spacing();
-		ImGui::SetCursorPosX((399 - 275) * .5);
-		ImGui::SliderFloat("Smoothing", &menu.config.smoothing, 0, 10, "%.1f");
+		ImGui::SliderInt("FOV", &menu.config.legit_fov, 0, 90, "%.0f", 171);
+		ImGui::SameLine();
+		ImGui::SetCursorPosX(37 + 171);
+		ImGui::SliderFloat("Smoothing", &menu.config.smoothing, 0, 10, "%.1f", 1, 171);
 	} ImGui::EndChild(true, menu.font_child_title, main_red);
 	ImGui::Custom::ChildSettingsEnd();
 
@@ -490,6 +775,7 @@ void Menu::visuals_tab()
 		
 		ImGui::Checkbox("Show Aimbot FOV", &menu.config.show_fov);
 		ImGui::ColorEdit4("fov clr", menu.config.f_fov_clr, ImGuiColorEditFlags_NoInputs);
+		ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 5);
 		ImGui::Checkbox("Show Spread", &menu.config.show_spread);
 		ImGui::ColorEdit4("spread clr", menu.config.f_spread_clr, ImGuiColorEditFlags_NoInputs);
 
@@ -528,7 +814,8 @@ void Menu::visuals_tab()
 		ImGui::SameLine();
 		ImGui::SetCursorPosX(399 - 175);
 		ImGui::Checkbox("Sleeve Chams", &menu.config.sleeve_chams);
-		ImGui::ColorEdit4("sleve clr", menu.config.f_sleeve_chams, ImGuiColorEditFlags_NoInputs);		
+		ImGui::ColorEdit4("sleve clr", menu.config.f_sleeve_chams, ImGuiColorEditFlags_NoInputs);	
+		ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 5);
 		ImGui::Checkbox("Arms Chams", &menu.config.arms_chams);
 		ImGui::ColorEdit4("arms clr", menu.config.f_arms_chams, ImGuiColorEditFlags_NoInputs);
 	} ImGui::EndChild(true, menu.font_child_title, main_red);
@@ -544,7 +831,7 @@ void Menu::visuals_tab()
 	ImGui::BeginChild("##Misc", ImVec2(399, 109), true, ImGuiWindowFlags_AlwaysUseWindowPadding);
 	{		
 		ImGui::Custom::ChildSettingsInside(8, active);
-
+		ImGui::Checkbox("Bomb Esp", &menu.config.bomb_esp);
 	} ImGui::EndChild(true, menu.font_child_title, main_red);
 	ImGui::Custom::ChildSettingsEnd();	
 
@@ -579,13 +866,13 @@ void Menu::misc_tab()
 		ImGui::Spacing();
 		ImGui::Checkbox("Bunny Hop", &menu.config.bhop);
 		ImGui::SameLine();
-		ImGui::SetCursorPosX(399 - 175);		
-		ImGui::SameLine();
 		ImGui::SetCursorPosX(399 - 175);
+		ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10);
+		ImGui::SliderInt("Chance (%)", &menu.config.bhop_chance, 0, 100, "%.0f", 150);
 		ImGui::Checkbox("Auto Strafer", &menu.config.auto_strafer);
-		ImGui::Checkbox("Auto Pistol", &menu.config.auto_pistol);
 		ImGui::SameLine();
 		ImGui::SetCursorPosX(399 - 175);
+		ImGui::Checkbox("Auto Pistol", &menu.config.auto_pistol);
 		ImGui::Checkbox("Anti Screenshot", &menu.config.anti_screenshot);
 		ImGui::Checkbox("Quick Peak", &menu.config.quick_peak_pair.second);
 		ImGui::SameLine();
@@ -597,6 +884,9 @@ void Menu::misc_tab()
 		ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 5);
 		ImGui::Checkbox("No Scope", &menu.config.no_scope);
 		ImGui::Checkbox("Movement Blocker", &menu.config.movement_blocker);
+		ImGui::SameLine();
+		ImGui::SetCursorPosX(399 - 175);
+		ImGui::Checkbox("Rank Revealer", &menu.config.rank_revealer);
 	} ImGui::EndChild(true, menu.font_child_title, main_red);
 	ImGui::Custom::ChildSettingsEnd();
 
@@ -612,11 +902,11 @@ void Menu::misc_tab()
 		ImGui::Spacing();
 		ImGui::Spacing();
 
-		ImGui::SliderFloat("Character FOV", &menu.config.character_fov, 10, 120);
+		ImGui::SliderFloat("Character FOV", &menu.config.character_fov, 10, 120, "%.0f");
 		ImGui::Spacing();
 		ImGui::Spacing();
 		ImGui::Spacing();
-		ImGui::SliderFloat("ViewModel FOV", &menu.config.wepaon_fov, 10, 120);
+		ImGui::SliderFloat("ViewModel FOV", &menu.config.wepaon_fov, 10, 120, "%.0f");
 		ImGui::Separator();
 		ImGui::Spacing();
 
@@ -628,7 +918,7 @@ void Menu::misc_tab()
 		ImGui::Spacing();
 		ImGui::Spacing();
 		ImGui::Spacing();
-		ImGui::SliderInt("Thirdperson Distance", &menu.config.third_person_distance, 50, 200);
+		ImGui::SliderInt("Distance", &menu.config.third_person_distance, 50, 200);
 		ImGui::Checkbox("Disable On Weapon", &menu.config.third_disable_on_weapon);
 
 
@@ -663,6 +953,7 @@ void Menu::misc_tab()
 
 		ImGui::Checkbox("Force Crosshair", &menu.config.force_crosshair);
 		ImGui::Checkbox("No Flash", &menu.config.no_flash);
+		ImGui::Checkbox("Remove Stamina", &menu.config.remove_stamina);
 
 	} ImGui::EndChild(true, menu.font_child_title, main_red);
 	ImGui::Custom::ChildSettingsEnd();
@@ -674,23 +965,35 @@ void Menu::skins_tab()
 	ImGui::Dummy(ImVec2(6, 0)); ImGui::SameLine();
 
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(12, 24));
-	ImGui::BeginChild("Skins", ImVec2(399, 440), true, ImGuiWindowFlags_AlwaysUseWindowPadding);
+	ImGui::BeginChild("Items", ImVec2(261, 440), true, ImGuiWindowFlags_AlwaysUseWindowPadding);
 	{
+		ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 5);
 		ImGui::Checkbox("Enable Skins", &menu.config.skins_enable);
 		ImGui::Separator();
 
+		auto weapon_index = 0;
+		const auto weapons = get_weapons(true);
+		auto can_change_index = [weapons, &weapon_index]()
+		{
+			if (!csgo::local_player || !csgo::local_player->is_alive())
+				return false;
 
-		ImGui::PushFont(menu.font_weapon);
-		ImVec4 ButColor{ ImColor(0.10f, 0.10f, 0.10f, 1.00f) };
-		ImGui::PushStyleColor(ImGuiCol_Button, ButColor);
-		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ButColor);
-		if (ImGui::Button("G", ImVec2(78, 42))) { menu.config.skin_type = 0; } ImGui::SameLine();  //Pistol
-		if (ImGui::Button("W", ImVec2(96, 42))) { menu.config.skin_type = 1; } ImGui::SameLine();  //Rifle
-		if (ImGui::Button("a", ImVec2(100, 42))) { menu.config.skin_type = 2; } ImGui::SameLine();  //Snipers
-		if (ImGui::Button("4", ImVec2(78, 42))) { menu.config.skin_type = 3; }			           //Knife
-		ImGui::PopStyleColor();
-		ImGui::PopStyleColor();
-		ImGui::PopFont();
+			if (!csgo::local_player->active_weapon())
+				return false;
+
+			weapon_index = csgo::local_player->active_weapon()->item_definition_index();
+			return weapons.count(weapon_index) > 0;
+		};
+
+		const auto state = can_change_index();
+
+		ImGui::SetCursorPosX(-16);
+		ImGui::SetCursorPosY(ImGui::GetCursorPosY()-7);
+		listbox_group_weapons(menu.config.weapon_index, get_groups(true, false), weapons, get_listbox_size(261, state ? 26.f : -5.f));
+
+		ImGui::SetCursorPosX((261 - 148)*.5);
+		if (ImGui::Button("Current Weapon"))
+			menu.config.weapon_index = weapon_index;
 
 	} ImGui::EndChild(true, menu.font_child_title, main_red);
 	ImGui::PopStyleVar();
@@ -699,11 +1002,38 @@ void Menu::skins_tab()
 	ImGui::Dummy(ImVec2(6, 0)); ImGui::SameLine();
 
 	ImGui::SetCursorPosY(46);
-	ImGui::SetCursorPosX(427);
+	ImGui::SetCursorPosX(289);
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(12, 24));
-	ImGui::BeginChild("##Skins2", ImVec2(399, 440), true, ImGuiWindowFlags_AlwaysUseWindowPadding);
+	ImGui::BeginChild("Skin", ImVec2(261, 440), true, ImGuiWindowFlags_AlwaysUseWindowPadding);
 	{
+		static auto show_all_kits = false;
+		ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 2);
+		ImGui::Checkbox("All skins", &show_all_kits);
 
+		ImGui::SetCursorPosX(-16);
+		ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 7);
+		listbox_group_paints(menu.config.skin_index, parser_skins, get_listbox_size(261, -5.f));
+
+	} ImGui::EndChild(true, menu.font_child_title, main_red);
+	ImGui::PopStyleVar();
+
+	ImGui::Dummy(ImVec2(0, 6));
+	ImGui::Dummy(ImVec2(6, 0)); ImGui::SameLine();
+
+	ImGui::SetCursorPosY(46);
+	ImGui::SetCursorPosX(564);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(12, 24));
+	ImGui::BeginChild("##Settings", ImVec2(261, 440), true, ImGuiWindowFlags_AlwaysUseWindowPadding);
+	{
+		if (ImGui::Button("Update", ImVec2(70, 30)))
+		{
+			features::skins::replace_paint_kit(menu.config.weapon_index, menu.config.skin_index);
+			force_update = true;
+		}		
+
+		if (ImGui::Button("Save", ImVec2(60, 30)))
+			features::skins::save();
+		
 	} ImGui::EndChild(true, menu.font_child_title, main_red);
 	ImGui::PopStyleVar();
 }
@@ -753,6 +1083,7 @@ void Menu::settings_tab()
 		ImGui::SetCursorPosY((440 - 50));
 		if (ImGui::Button("Show Debug Console"))
 		{
+			console::initialize("Overflow Console");
 			menu.config.show_console_pair.first = !menu.config.show_console_pair.first;
 			if (!menu.config.show_console_pair.second)
 			{
@@ -851,10 +1182,18 @@ void Menu::settings_tab()
 	ImGui::PopStyleVar();
 }
 
+// convert wstring to UTF-8 string
+std::string wstring_to_utf8(const std::wstring& str)
+{
+	std::wstring_convert<std::codecvt_utf8<wchar_t>> myconv;
+	return myconv.to_bytes(str);
+}
+
 void Menu::spectator_list()
 {
-	menu.spec_height = (menu.spectators.size() * 12) + 35;
-	if (menu.spectators.empty())
+	if (menu.spectators.size() > 0)
+		menu.spec_height = 41 + ((ImGui::CalcTextSize(menu.spectators[0].c_str()).y + 5) * menu.spectators.size());
+	else
 		menu.spec_height = 30;
 
 	ImGui::SetNextWindowSize(ImVec2(175, menu.spec_height));

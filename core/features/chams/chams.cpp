@@ -140,7 +140,7 @@ void features::visuals::dme_chams_run(hooks::dme::fn original, void* thisptr, vo
 			{
 			case 0:
 				mat = interfaces::material_system->find_material("overflow_regular", TEXTURE_GROUP_MODEL); index = menu.config.chams_type;
-				mat_xqz = interfaces::material_system->find_material("overflow_regular_xqz", TEXTURE_GROUP_MODEL); index = menu.config.chams_type; break;
+				mat_xqz = interfaces::material_system->find_material("/overflow_regular_xqz", TEXTURE_GROUP_MODEL); index = menu.config.chams_type; break;
 			case 1:
 				mat = interfaces::material_system->find_material("overflow_reflective", TEXTURE_GROUP_MODEL, true, nullptr); index = menu.config.chams_type;
 				mat_xqz = interfaces::material_system->find_material("overflow_reflective_xqz", TEXTURE_GROUP_MODEL); index = menu.config.chams_type; break;
@@ -236,7 +236,7 @@ void features::visuals::dme_misc(const model_render_info_t& info)
 		return;
 
 	auto local_player = reinterpret_cast<player_t*>(interfaces::entity_list->get_client_entity(interfaces::engine->get_local_player()));
-	if (!local_player)
+	if (!local_player || !local_player->is_alive())
 		return;
 
 	auto model_name = interfaces::model_info->get_model_name((model_t*)info.model);

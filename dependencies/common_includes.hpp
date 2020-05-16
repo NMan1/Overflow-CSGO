@@ -15,6 +15,7 @@
 #include <filesystem>
 #include <experimental/filesystem>
 
+#include "../core/features/skins/parser.h"
 #include "../core/menu/imgui/imgui.h"
 #include "../core/menu/imgui/dx9/imgui_impl_dx9.h"
 #include "utilities/singleton.hpp"
@@ -33,3 +34,4 @@
 #include "../core/menu/menu.h"
 #include "../dependencies/interfaces/I_client_mode.h"
 #include "../dependencies/interfaces/I_client_renderable.hpp"
+#include "../dependencies/interfaces/i_net_message.hpp"

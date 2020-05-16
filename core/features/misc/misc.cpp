@@ -5,11 +5,20 @@ void features::misc::bunny_hop(c_usercmd* cmd)
 {
 	static bool last_jumped = false, should_fake = false;
 
-	if (!last_jumped && should_fake) {
+	if (!last_jumped && should_fake) 
+	{
 		should_fake = false;
 		cmd->buttons |= in_jump;
 	}
-	else if (cmd->buttons & in_jump) {
+	else if (cmd->buttons & in_jump) 
+	{
+		std::random_device randomDevice;
+		std::mt19937 generate(randomDevice());
+		std::uniform_int_distribution<> chance(0, 100);
+
+		if (chance(generate) > menu.config.bhop_chance)
+			return;
+
 		if (csgo::local_player->flags() & fl_onground) 
 		{
 			last_jumped = true;

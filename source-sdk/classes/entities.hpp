@@ -184,6 +184,13 @@ enum item_definition_indexes {
 	GLOVE_HYDRA = 5035
 };
 
+enum team : int
+{
+	team_spec = 1,
+	team_t = 2,
+	team_ct = 3
+};
+
 class entity_t {
 public:
 	void* animating() {
@@ -540,6 +547,13 @@ public:
 	NETVAR("DT_SmokeGrenadeProjectile", "m_nSmokeEffectTickBegin", smoke_grenade_tick_begin, int);
 	NETVAR("DT_CSPlayer", "m_nTickBase", get_tick_base, int);
 	NETVAR("DT_BasePlayer", "m_hGroundEntity", ground_entity, uintptr_t);
+
+	NETVAR("DT_PlantedC4", "m_bBombTicking", c4_is_ticking, bool);
+	NETVAR("DT_PlantedC4", "m_bBombDefused", c4_is_defused, bool);
+	NETVAR("DT_PlantedC4", "m_hBombDefuser", c4_gets_defused, float);
+	NETVAR("DT_PlantedC4", "m_flC4Blow", c4_blow_time, float);
+	NETVAR("DT_PlantedC4", "m_flDefuseCountDown", c4_defuse_countdown, float);
+	NETVAR("DT_PlantedC4", "m_flTimerLength", c4_timer_length, float);
 
 	bool has_c4() {
 		static auto fn = reinterpret_cast<bool(__thiscall*)(void*)>(utilities::pattern_scan(GetModuleHandleA("client_panorama.dll"), "56 8B F1 85 F6 74 31"));

@@ -27,6 +27,12 @@ namespace features {
 		void scene_chams_run();
 	};
 	namespace skins {
+		extern std::string file_skins;
+		int find_paint_kit(int item_definition_index);
+		void replace_paint_kit(int item_definition_index, int paint_kit);
 		void run();
+		void create();
+		void save();
+		void load();
 	}
 }

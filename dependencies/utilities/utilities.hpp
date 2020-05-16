@@ -25,4 +25,5 @@ namespace utilities {
 	}
 
 	std::uint8_t* pattern_scan(void* module, const char* signature);
+	void force_update();
 }

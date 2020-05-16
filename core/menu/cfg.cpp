@@ -9,6 +9,7 @@ void Menu::run(const char* name) noexcept {
 	if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_Documents, 0, NULL, &pathToDocuments))) {
 		path = pathToDocuments;
 		path /= name;
+		path /= "configs";
 		CoTaskMemFree(pathToDocuments);
 	}
 

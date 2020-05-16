@@ -80,10 +80,16 @@ void render::draw_line(int x1, int y1, int x2, int y2, color colour) {
 	interfaces::surface->draw_line(x1, y1, x2, y2);
 }
 
-void render::draw_text_wchar(int x, int y, unsigned long font, const wchar_t* string, color colour) {
+void render::draw_text_wchar(int x, int y, unsigned long font, const wchar_t* string, bool text_centered, color colour) {
 	interfaces::surface->set_text_color(colour.r, colour.g, colour.b, colour.a);
 	interfaces::surface->draw_text_font(font);
-	interfaces::surface->draw_text_pos(x, y);
+	int width, height;
+	interfaces::surface->get_text_size(font, string, width, height);
+
+	if (text_centered)
+		interfaces::surface->draw_text_pos(x - (width / 2), y);
+	else
+		interfaces::surface->draw_text_pos(x, y);
 	interfaces::surface->draw_render_text(string, wcslen(string));
 }
 

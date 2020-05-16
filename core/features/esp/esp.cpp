@@ -155,11 +155,15 @@ void features::visuals::render_esp()
 		if (menu.config.name)
 		{
 			player_info_t info;
+			wchar_t buffer[36];
 			interfaces::engine->get_player_info(entity->index(), &info);
 			std::string print(info.fakeplayer ? std::string("bot ").append(info.name).c_str() : info.name);
 			std::transform(print.begin(), print.end(), print.begin(), ::tolower);
 			menu.config.name_clr.a = 255;
-			render::draw_text_string(bbox.x + (bbox.w / 2), bbox.y - 13, render::fonts::verdana_font, print, true, menu.config.name_clr);
+			if (MultiByteToWideChar(CP_UTF8, 0, print.c_str(), -1, buffer, 36) > 0)
+				render::draw_text_wchar(bbox.x + (bbox.w / 2), bbox.y - 13, render::fonts::verdana_font, buffer, true, menu.config.name_clr);
+			else
+				render::draw_text_string(bbox.x + (bbox.w / 2), bbox.y - 13, render::fonts::verdana_font, print, true, menu.config.name_clr);
 		}
 		
 		if (menu.config.weapon_icon)
@@ -168,7 +172,7 @@ void features::visuals::render_esp()
 			if (wep)
 			{
 				auto wep_name = wep->get_icon();
-				render::draw_text_string(bbox.x + (bbox.w / 2), bbox.h + bbox.y - 2, render::fonts::weapon_font, wep_name, true, menu.config.wep_icon_clr);
+				render::draw_text_string(bbox.x + (bbox.w / 2), bbox.h + bbox.y + 5, render::fonts::weapon_font, wep_name, true, menu.config.wep_icon_clr);
 			}
 		}
 
@@ -176,7 +180,7 @@ void features::visuals::render_esp()
 		{
 			int height = bbox.h + bbox.y + 2;
 			if (menu.config.weapon_icon)
-				height = bbox.h + bbox.y + 16;
+				height = bbox.h + bbox.y + 25;
 			auto wep = entity->active_weapon();
 			if (wep)
 			{
@@ -324,12 +328,45 @@ void features::visuals::render_visuals()
 			{
 				auto spread = weapon->inaccuracy() * 550.f;
 				if (spread != 0.f)
-				{
-					std::cout << spread << std::endl;
 					render::draw_circle(menu.screen_x / 2, menu.screen_y / 2, spread, 60, menu.config.spread_clr);
+			}
+		}
+	}
+	
+	for (int i = 1; i < interfaces::entity_list->get_highest_index(); i++)
+	{
+		auto entity = reinterpret_cast<player_t*>(interfaces::entity_list->get_client_entity(i));
+
+		if (!entity || entity == csgo::local_player)
+			continue;
+
+		if (menu.config.bomb_esp)
+		{
+			if (entity->client_class()->class_id == class_ids::cplantedc4 && entity->c4_is_ticking() && !entity->c4_is_defused())
+			{
+				auto explode_time = entity->c4_blow_time() - (interfaces::globals->interval_per_tick * csgo::local_player->get_tick_base()); // 40 - 0
+				auto defuse_countdown = entity->c4_defuse_countdown() - (interfaces::globals->interval_per_tick * csgo::local_player->get_tick_base()); // 10 - 0 or 5 - 0
+
+				char time_to_explode[64]; sprintf_s(time_to_explode, "%.1f", explode_time);//Text we gonna display for explosion
+				char time_to_defuse[64]; sprintf_s(time_to_defuse, "%.1f", defuse_countdown);//Text we gonna display for defuse
+
+				if (explode_time > 0)
+				{
+					auto ratio_explode = (explode_time / entity->c4_timer_length()) * menu.screen_x;
+					auto ratio_defuse = (defuse_countdown / entity->has_defuser() ? 5 : 10) * menu.screen_x;
+
+					render::draw_filled_rect(0, 0, ratio_explode, 10, color(255, 35, 205));
+					render::draw_text_string(menu.screen_x / 2, -2, render::fonts::verdana_font, time_to_explode, true, color(255, 255, 255));
+
+					if (entity->c4_gets_defused() > 0)
+					{
+						render::draw_filled_rect(0, 10, ratio_defuse, 10, color(38, 255, 205));
+						render::draw_text_string(menu.screen_x / 2, 8, render::fonts::verdana_font, time_to_defuse, true, color(255, 255, 255));
+					}
 				}
 			}
 		}
 	}
+
 	nightmode();
 }

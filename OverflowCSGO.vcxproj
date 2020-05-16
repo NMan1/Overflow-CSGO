@@ -61,7 +61,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING;_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING;</PreprocessorDefinitions>
       <AdditionalOptions>/std:c++latest /Zc:twoPhase- %(AdditionalOptions)</AdditionalOptions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
@@ -74,7 +74,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING;_HAS_ITERATOR_DEBUGGING=0;_ITERATOR_DEBUG_LEVEL=0</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING;_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING;_HAS_ITERATOR_DEBUGGING=0;_ITERATOR_DEBUG_LEVEL=0</PreprocessorDefinitions>
       <AdditionalOptions>/std:c++latest /Zc:twoPhase- %(AdditionalOptions)</AdditionalOptions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <WholeProgramOptimization>false</WholeProgramOptimization>
@@ -92,6 +92,8 @@
     <ClCompile Include="core\features\esp\esp.cpp" />
     <ClCompile Include="core\features\misc\engine_prediction.cpp" />
     <ClCompile Include="core\features\misc\misc.cpp" />
+    <ClCompile Include="core\features\skins\knife_hook.cpp" />
+    <ClCompile Include="core\features\skins\parser.cpp" />
     <ClCompile Include="core\features\skins\skins.cpp" />
     <ClCompile Include="core\hooks\hooks.cpp" />
     <ClCompile Include="core\menu\cfg.cpp" />
@@ -121,6 +123,8 @@
     <ClInclude Include="core\features\features.hpp" />
     <ClInclude Include="core\features\misc\engine_prediction.hpp" />
     <ClInclude Include="core\features\misc\thirdperson.h" />
+    <ClInclude Include="core\features\skins\knife_hook.h" />
+    <ClInclude Include="core\features\skins\parser.h" />
     <ClInclude Include="core\hooks\hooks.hpp" />
     <ClInclude Include="core\menu\archivex.hpp" />
     <ClInclude Include="core\menu\imgui\dx9\imgui_impl_dx9.h" />
@@ -138,6 +142,7 @@
     <ClInclude Include="dependencies\interfaces\I_client_renderable.hpp" />
     <ClInclude Include="dependencies\interfaces\i_client_thinkable.h" />
     <ClInclude Include="dependencies\interfaces\I_client_unkown.hpp" />
+    <ClInclude Include="dependencies\interfaces\i_net_message.hpp" />
     <ClInclude Include="dependencies\interfaces\i_weapon_system.hpp" />
     <ClInclude Include="dependencies\minhook\buffer.h" />
     <ClInclude Include="dependencies\minhook\hde\hde32.h" />

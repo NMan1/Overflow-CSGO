@@ -13,9 +13,17 @@ hooks::get_view_model::fn	get_view_model_original		= nullptr;
 hooks::overide_view::fn		overide_view_original		= nullptr;
 hooks::fsn::fn				fsn_original				= nullptr;
 hooks::list_leaves::fn		list_leaves_original		= nullptr;
+hooks::file_check::fn		file_check_original         = nullptr;
+hooks::file_system::fn		file_system_original		= nullptr;
+hooks::send_net_msg::fn		send_net_msg_original       = nullptr;
+
+using fn_org = void(__fastcall*)(void*, void*);
+fn_org hook_org = nullptr;
 
 uint8_t*					present_address				= nullptr;
 uint8_t*					reset_address				= nullptr;
+i_net_channel*				old_net_channel				= nullptr;
+void*						send_net_msg_target;
 
 HWND						hooks::hCSGOWindow			= nullptr; 
 WNDPROC						hooks::pOriginalWNDProc		= nullptr;
@@ -25,6 +33,7 @@ uintptr_t					p_list_leaves;
 
 unsigned int get_virtual(void* class_, unsigned int index) { return (unsigned int)(*(int**)class_)[index]; }
 extern LRESULT ImGui_ImplDX9_WndProcHandler(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam);
+
 
 bool hooks::initialize() 
 {
@@ -42,7 +51,7 @@ bool hooks::initialize()
 		throw std::runtime_error("failed to hook wndproc.");
 		return false;
 	}
-
+	
 	auto create_move_target = reinterpret_cast<void*>(get_virtual(interfaces::clientmode, 24));
 	auto get_view_model_target = reinterpret_cast<void*>(get_virtual(interfaces::clientmode, 35));
 	auto get_overide_target = reinterpret_cast<void*>(get_virtual(interfaces::clientmode, 18));
@@ -53,8 +62,11 @@ bool hooks::initialize()
 	auto in_key_event_target = reinterpret_cast<void*>(get_virtual(interfaces::client, 21));
 	auto fsn_target = reinterpret_cast<void*>(get_virtual(interfaces::client, 37));
 	auto list_leaves_target = reinterpret_cast<void*>(get_virtual(interfaces::engine->get_bsp_tree_query(), 6));
+	auto file_check_target = reinterpret_cast<void*>(utilities::pattern_scan(GetModuleHandleW(L"engine.dll"), "55 8B EC 81 EC ? ? ? ? 53 8B D9 89 5D F8 80"));
+	auto file_system_target = reinterpret_cast<void*>(get_virtual(**reinterpret_cast<void***>(utilities::pattern_scan(GetModuleHandleW(L"engine.dll"), "8B 0D ? ? ? ? 8D 95 ? ? ? ? 6A 00 C6") + 0x2), 128));
 	auto present_address = utilities::pattern_scan(GetModuleHandleW(L"gameoverlayrenderer.dll"), "FF 15 ? ? ? ? 8B F8 85 DB") + 0x2;
 	auto reset_address = utilities::pattern_scan(GetModuleHandleW(L"gameoverlayrenderer.dll"), "FF 15 ? ? ? ? 8B F8 85 FF 78 18") + 0x2;
+	interfaces::engine->is_in_game() ? send_net_msg_target = reinterpret_cast<void*>(get_virtual(old_net_channel = (i_net_channel*)interfaces::clientstate->net_channel, 40)) : send_net_msg_target = nullptr;
 
 	if (!present_address || !reset_address)
 	{
@@ -120,7 +132,17 @@ bool hooks::initialize()
 	if (MH_CreateHook(lock_cursor_target, &lock_cursor::hook, reinterpret_cast<void**>(&lock_cursor_original)) != MH_OK) {
 		throw std::runtime_error("failed to initialize lock_cursor. (outdated index?)");
 		return false;
-	}
+	}	
+
+	if (MH_CreateHook(file_check_target, &file_check::hook, reinterpret_cast<void**>(&file_check_original)) != MH_OK) {
+		throw std::runtime_error("failed to initialize file_check_target. (outdated index?)");
+		return false;
+	}		
+
+	if (MH_CreateHook(file_system_target, &file_system::hook, reinterpret_cast<void**>(&file_system_original)) != MH_OK) {
+		throw std::runtime_error("failed to initialize file_check_target. (outdated index?)");
+		return false;
+	}	
 
 	if (MH_EnableHook(MH_ALL_HOOKS) != MH_OK) {
 		throw std::runtime_error("failed to enable hooks.");
@@ -129,6 +151,8 @@ bool hooks::initialize()
 
 	interfaces::engine->get_screen_size(menu.screen_x, menu.screen_y);
 	p_list_leaves = (uintptr_t)utilities::pattern_scan(GetModuleHandleW(L"client_panorama"), "56 52 FF 50 18") + 5;
+	interfaces::console->get_convar("sv_cheats")->set_value(1);
+	interfaces::console->get_convar("sv_pure_allow_loose_file_loads")->set_value(0);
 
 	console::log("[setup] hooks initialized!\n");
 	return true;
@@ -165,6 +189,9 @@ bool __fastcall hooks::create_move::hook(void* ecx, void* edx, int input_sample_
 	auto old_forwardmove = cmd->forwardmove;
 	auto old_sidemove = cmd->sidemove;
 
+	if (menu.config.rank_revealer && (cmd->buttons & in_score) != 0)
+		interfaces::client->dispatch_user_message(cs_um_serverrankrevealall, 0, 0, nullptr);
+	
 	if (menu.config.misc && csgo::local_player->is_alive())
 	{
 		if (menu.config.bhop)
@@ -176,6 +203,9 @@ bool __fastcall hooks::create_move::hook(void* ecx, void* edx, int input_sample_
 		if (menu.config.no_flash)
 			if (csgo::local_player->flash_duration() > 1.f)
 				csgo::local_player->flash_duration() = 0.f;
+
+		if (menu.config.remove_stamina)
+			cmd->buttons |= in_bullrush;
 
 		if (menu.config.force_crosshair && !csgo::local_player->is_scoped())
 			interfaces::console->get_convar("weapon_debug_spread_show")->set_value(3);
@@ -216,6 +246,23 @@ bool __fastcall hooks::create_move::hook(void* ecx, void* edx, int input_sample_
 	
 	if (menu.config.movement_blocker)
 		features::misc::movement_blocker(cmd);
+
+	if (!old_net_channel && !send_net_msg_target)
+	{
+		send_net_msg_target = reinterpret_cast<void*>(get_virtual(old_net_channel = (i_net_channel*)interfaces::clientstate->net_channel, 40));
+		MH_CreateHook(send_net_msg_target, &send_net_msg::hook, reinterpret_cast<void**>(&send_net_msg_original));
+		MH_EnableHook(send_net_msg_target);
+	}
+	else if (old_net_channel != (i_net_channel*)interfaces::clientstate->net_channel)
+	{
+		old_net_channel = (i_net_channel*)interfaces::clientstate->net_channel;
+		if (old_net_channel)
+		{
+			send_net_msg_target = reinterpret_cast<void*>(get_virtual(old_net_channel, 40));
+			MH_CreateHook(send_net_msg_target, &send_net_msg::hook, reinterpret_cast<void**>(&send_net_msg_original));
+			MH_EnableHook(send_net_msg_target);
+		}
+	}
 
 	return false;
 }
@@ -303,6 +350,17 @@ void __stdcall hooks::fsn::hook(int frame_stage)
 	if (frame_stage == FRAME_NET_UPDATE_POSTDATAUPDATE_START)
 		if (menu.config.skins_enable)
 			features::skins::run();
+
+	auto local_player = reinterpret_cast<player_t*>(interfaces::entity_list->get_client_entity(interfaces::engine->get_local_player()));
+	if (!local_player)
+		fsn_original(interfaces::client, frame_stage);
+
+	if (menu.force_update && interfaces::engine->is_connected() && interfaces::engine->is_in_game() && local_player->is_alive())
+	{
+		utilities::force_update();
+		menu.force_update = !menu.force_update;
+	}
+
 	fsn_original(interfaces::client, frame_stage);
 }
 
@@ -398,11 +456,11 @@ void __stdcall hooks::overide_view::hook(c_view_setup* vsView)
 
 float __stdcall hooks::get_view_model::hook()
 {
-	auto local_player = reinterpret_cast<player_t*>(interfaces::entity_list->get_client_entity(interfaces::engine->get_local_player()));
-	if (!local_player)
+	if (!interfaces::engine->is_in_game() || !interfaces::engine->is_connected())
 		return 68.f;
 
-	if (!interfaces::engine->is_in_game() || !interfaces::engine->is_connected())
+	auto local_player = reinterpret_cast<player_t*>(interfaces::entity_list->get_client_entity(interfaces::engine->get_local_player()));
+	if (!local_player || !local_player->is_alive())
 		return 68.f;
 
 	if (!local_player->is_scoped())
@@ -411,6 +469,28 @@ float __stdcall hooks::get_view_model::hook()
 			return menu.config.wepaon_fov;
 	}
 	return 68.f;		
+}
+
+// fuck valve
+bool __fastcall hooks::send_net_msg::hook(i_net_channel* thisptr, int edx, i_net_message* pMessage, bool bForceReliable, bool bVoice)
+{
+	if (pMessage->GetType() == 14)
+		return false;
+
+	if (pMessage->GetGroup() == 9)
+		bVoice = true;
+
+	return send_net_msg_original(thisptr, edx, pMessage, bForceReliable, bVoice);
+}
+
+void __fastcall hooks::file_check::hook(void* ecx, void* edx)
+{
+	return;
+}
+
+bool __fastcall hooks::file_system::hook(void* ecx, void* edx) 
+{
+	return true;
 }
 
 LRESULT __stdcall hooks::WndProc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)

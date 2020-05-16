@@ -2,8 +2,10 @@
 #include "../../dependencies/common_includes.hpp"
 
 class c_view_setup;
+class i_net_message;
 
-namespace hooks {
+namespace hooks 
+{
 	bool initialize();
 	void release();
 
@@ -60,6 +62,21 @@ namespace hooks {
 	namespace list_leaves {
 		using fn = int(__thiscall*)(void*, vec3_t&, vec3_t&, unsigned short*, int);
 		int __fastcall hook(void* bsp, void* edx, vec3_t& mins, vec3_t& maxs, unsigned short* pList, int listMax);
+	}
+
+	namespace file_check {
+		using fn = void(__fastcall*)(void*, void*);
+		void __fastcall hook(void* ecx, void* edx);
+	}		
+
+	namespace file_system {
+		using fn = bool(__fastcall*)(void*, void*);
+		bool __fastcall hook(void* ecx, void* edx);
+	}	
+
+	namespace send_net_msg {
+		using fn = bool(__fastcall*)(i_net_channel*, int, i_net_message*, bool, bool);
+		bool __fastcall hook(i_net_channel* thisptr, int edx, i_net_message* pMessage, bool bForceReliable, bool bVoice);
 	}
 
 	LRESULT  __stdcall					  WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
