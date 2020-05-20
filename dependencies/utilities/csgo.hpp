@@ -15,4 +15,6 @@
 
 namespace csgo {
 	extern player_t* local_player;
+	extern int rounds;
+	extern bool round_did_change;
 }

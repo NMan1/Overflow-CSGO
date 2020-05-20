@@ -60,6 +60,11 @@ void hooked_recvproxy_viewmodel(c_recv_proxy_data* p_data, void* p_struct, void*
 	int index_stiletto = interfaces::model_info->get_model_index("models/weapons/v_knife_stiletto.mdl");
 	int index_talon = interfaces::model_info->get_model_index("models/weapons/v_knife_widowmaker.mdl");
 	int index_ursus = interfaces::model_info->get_model_index("models/weapons/v_knife_ursus.mdl");
+	int index_css = interfaces::model_info->get_model_index("models/weapons/v_knife_css.mdl");
+	int index_cord = interfaces::model_info->get_model_index("models/weapons/v_knife_cord.mdl");
+	int index_surv = interfaces::model_info->get_model_index("models/weapons/v_knife_canis.mdl");
+	int index_gypsy = interfaces::model_info->get_model_index("models/weapons/v_knife_outdoor.mdl");
+	int index_skeleton = interfaces::model_info->get_model_index("models/weapons/v_knife_skeleton.mdl");
 
 	auto local_player = reinterpret_cast<player_t*>(interfaces::entity_list->get_client_entity(interfaces::engine->get_local_player()));
 
@@ -81,41 +86,57 @@ void hooked_recvproxy_viewmodel(c_recv_proxy_data* p_data, void* p_struct, void*
 			p_data->value.m_int == index_stiletto ||
 			p_data->value.m_int == index_talon ||
 			p_data->value.m_int == index_ursus ||
+			p_data->value.m_int == index_default_t ||			
+			p_data->value.m_int == index_css || //
+			p_data->value.m_int == index_cord ||
+			p_data->value.m_int == index_surv ||
+			p_data->value.m_int == index_gypsy ||
+			p_data->value.m_int == index_skeleton ||
 			p_data->value.m_int == index_default_t ||
 			p_data->value.m_int == index_default_ct))
 		{
-			if (menu.config.knife_model == 0)
+			if (menu.knife_model == 0 && local_player->team() != team::team_ct)
 				p_data->value.m_int = index_default_t;
-			else if (menu.config.knife_model == 0)
+			else if (menu.knife_model == 0 && local_player->team() == team::team_ct)
 				p_data->value.m_int = index_default_ct;
-			else if (menu.config.knife_model == 1)
+			else if (menu.knife_model == WEAPON_BAYONET)
 				p_data->value.m_int = index_bayonet;
-			else if (menu.config.knife_model == 2)
+			else if (menu.knife_model == WEAPON_KNIFE_M9_BAYONET)
 				p_data->value.m_int = index_m9;
-			else if (menu.config.knife_model == 3)
+			else if (menu.knife_model == WEAPON_KNIFE_KARAMBIT)
 				p_data->value.m_int = index_karambit;
-			else if (menu.config.knife_model == 4)
+			else if (menu.knife_model == WEAPON_KNIFE_SURVIVAL_BOWIE)
 				p_data->value.m_int = index_bowie;
-			else if (menu.config.knife_model == 5)
+			else if (menu.knife_model == WEAPON_KNIFE_BUTTERFLY)
 				p_data->value.m_int = index_butterfly;
-			else if (menu.config.knife_model == 6)
+			else if (menu.knife_model == WEAPON_KNIFE_FALCHION)
 				p_data->value.m_int = index_falchion;
-			else if (menu.config.knife_model == 7)
+			else if (menu.knife_model == WEAPON_KNIFE_FLIP)
 				p_data->value.m_int = index_flip;
-			else if (menu.config.knife_model == 8)
+			else if (menu.knife_model == WEAPON_KNIFE_GUT)
 				p_data->value.m_int = index_gut;
-			else if (menu.config.knife_model == 9)
+			else if (menu.knife_model == WEAPON_KNIFE_TACTICAL)
 				p_data->value.m_int = index_huntsman;
-			else if (menu.config.knife_model == 10)
+			else if (menu.knife_model == WEAPON_KNIFE_PUSH)
 				p_data->value.m_int = index_shadow_daggers;
-			else if (menu.config.knife_model == 11)
+			else if (menu.knife_model == WEAPON_KNIFE_GYPSY_JACKKNIFE)
 				p_data->value.m_int = index_navaja;
-			else if (menu.config.knife_model == 12)
+			else if (menu.knife_model == WEAPON_KNIFE_STILETTO)
 				p_data->value.m_int = index_stiletto;
-			else if (menu.config.knife_model == 13)
+			else if (menu.knife_model == WEAPON_KNIFE_WIDOWMAKER)
 				p_data->value.m_int = index_talon;
-			else if (menu.config.knife_model == 14)
-				p_data->value.m_int = index_ursus;
+			else if (menu.knife_model == WEAPON_KNIFE_URSUS)
+				p_data->value.m_int = index_ursus;			
+			else if (menu.knife_model == WEAPON_KNIFE_CSS)
+				p_data->value.m_int = index_css;
+			else if (menu.knife_model == WEAPON_KNIFE_CORD)
+				p_data->value.m_int = index_cord;
+			else if (menu.knife_model == WEAPON_KNIFE_SURV)
+				p_data->value.m_int = index_surv;
+			else if (menu.knife_model == WEAPON_KNIFE_GYPSY_NOMAD)
+				p_data->value.m_int = index_gypsy;
+			else if (menu.knife_model == WEAPON_KNIFE_SKELETON)
+				p_data->value.m_int = index_skeleton;
 		}
 	}
 	recv_model_index(p_data, p_struct, p_out);
@@ -222,6 +243,33 @@ void set_view_model_sequence(const c_recv_proxy_data* pDataConst, void* p_struct
 					break;
 				}
 			}
+			else if (sz_model == "models/weapons/v_knife_css.mdl")
+			{
+				switch (m_nSequence)
+				{
+				case SEQUENCE_DEFAULT_LOOKAT01:
+					m_nSequence = 15;
+					break;
+				}
+			}
+			else if (sz_model == "models/weapons/v_knife_cord.mdl" ||
+				sz_model == "models/weapons/v_knife_canis.mdl" ||
+				sz_model == "models/weapons/v_knife_outdoor.mdl" ||
+				sz_model == "models/weapons/v_knife_skeleton.mdl")
+			{
+				switch (m_nSequence)
+				{
+				case SEQUENCE_DEFAULT_DRAW:
+					m_nSequence = RandomInt(SEQUENCE_BUTTERFLY_DRAW, SEQUENCE_BUTTERFLY_DRAW2);
+					break;
+				case SEQUENCE_DEFAULT_LOOKAT01:
+					m_nSequence = RandomInt(SEQUENCE_BUTTERFLY_LOOKAT01, 14);
+					break;
+				default:
+					m_nSequence++;
+				}
+			}
+
 			p_data->value.m_int = m_nSequence;
 		}
 	}

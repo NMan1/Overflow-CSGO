@@ -353,10 +353,14 @@ void features::visuals::render_visuals()
 				if (explode_time > 0)
 				{
 					auto ratio_explode = (explode_time / entity->c4_timer_length()) * menu.screen_x;
-					auto ratio_defuse = (defuse_countdown / entity->has_defuser() ? 5 : 10) * menu.screen_x;
-
+					auto lenght = entity->has_defuser() ? 5 : 10;
+					auto ratio_defuse = (float)(defuse_countdown / lenght) * (float)menu.screen_x;
+					
 					render::draw_filled_rect(0, 0, ratio_explode, 10, color(255, 35, 205));
 					render::draw_text_string(menu.screen_x / 2, -2, render::fonts::verdana_font, time_to_explode, true, color(255, 255, 255));
+
+					if (!entity)
+						continue;
 
 					if (entity->c4_gets_defused() > 0)
 					{

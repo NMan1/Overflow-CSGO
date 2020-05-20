@@ -235,7 +235,6 @@ public:
 		float f_xqz_clr[4] = { 1.f, 1.f, 1.f, 1.f };
 		color xqz_clr = color(255, 105, 255);
 		bool auto_strafer = false;
-		bool movement_blocker = false;
 		bool disable_occulusion = true;
 		bool sleeve_chams = false;
 		float f_sleeve_chams[4] = { 1.f, 1.f, 1.f, 1.f };
@@ -244,17 +243,24 @@ public:
 		float f_arms_chams[4] = { 1.f, 1.f, 1.f, 1.f };
 		color arms_chams_clr = color(255, 105, 255);
 		bool rank_revealer = false;
-		int knife_model;
+		int filler____;
 		bool remove_stamina;
 		int bhop_chance = 100;
-		int weapon_index;
-		int skin_index;
+		int filler_;
+		int filler__;
+		int filler;
 		bool bomb_esp;
-		std::vector<std::map<int, int>> skins_list;
+		std::pair<int, bool> movement_blocker;
+		std::pair<int, bool> crouch_blocker;
+		std::pair<int, bool> fake_duck;
 	};
 	Config config;
 
 	bool force_update = false;
+	int weapon_index;
+	int skin_index;
+	int knife_model = -1;
+
 	std::vector <std::string> spectators = {};
 	int vec_size = 0;
 	int new_vec_size = 0;

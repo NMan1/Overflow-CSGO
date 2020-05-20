@@ -80,6 +80,49 @@ void features::misc::movement_blocker(c_usercmd* cmd)
 	if (!csgo::local_player || !csgo::local_player->is_alive())
 		return;
 
+	auto best_dist = 900.f;
+	player_t* best_entity = nullptr;
+	for (int i = 0; i < interfaces::globals->max_clients; i++)
+	{
+		auto entity = reinterpret_cast<player_t*>(interfaces::entity_list->get_client_entity(i));
+		if (!entity)
+			continue;
+
+		if (entity == csgo::local_player)
+			continue;
+
+		if (!entity->is_alive() || entity->dormant())
+			continue;
+
+		auto distance = csgo::local_player->origin().distance_to(entity->origin());
+		if (distance < best_dist)
+		{
+			best_dist = distance;
+			best_entity = entity;
+		}
+	}
+
+	if (!best_entity || !csgo::local_player)
+		return;
+
+	vec3_t angle;
+	auto delta = csgo::local_player->origin() - best_entity->origin();
+	math::vector_angles(delta, angle);
+
+	angle.y -= csgo::local_player->eye_angles().y;
+	angle = math::normalize(angle);
+
+	if (angle.y < 0.0f)
+		cmd->sidemove = 450.f;
+	else if (angle.y > 0.0f)
+		cmd->sidemove = -450.f;
+}
+
+void features::misc::crouch_blocker(c_usercmd* cmd)
+{
+	if (!csgo::local_player || !csgo::local_player->is_alive())
+		return;
+
 	player_t* ground_entity = (player_t*)interfaces::entity_list->get_client_entity_handle(csgo::local_player->ground_entity());
 
 	// Check if there's a player under us.
@@ -94,7 +137,7 @@ void features::misc::movement_blocker(c_usercmd* cmd)
 			// Get the angles direction based on the target's speed.
 			vec3_t Direction;
 			math::vector_angles(Velocity, Direction);
-
+		
 			vec3_t ViewAngles;
 			interfaces::engine->get_view_angles(ViewAngles);
 
@@ -106,7 +149,7 @@ void features::misc::movement_blocker(c_usercmd* cmd)
 			math::angle_vector(Direction, Forward);
 
 			// Calculate the new direction based on the target's speed.
-			vec3_t NewDirection = Forward * Speed;
+			vec3_t NewDirection = Forward * -Speed;
 
 			// Move accordingly.
 			cmd->forwardmove = NewDirection.x;

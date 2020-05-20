@@ -84,5 +84,22 @@ void c_kit_parser::setup() noexcept
 		std::sort(parser_gloves.begin(), parser_gloves.end());
 	}
 
-	printf("Kit Parser initialized!\n");
+	std::string prev_name{};
+	auto index = 1;
+	for (paint_kit& kit : parser_skins)
+	{
+		if (kit.name == prev_name)
+		{
+			prev_name = kit.name;
+			kit.name = kit.name + " " + std::to_string(index);
+			index++;
+		}
+		else
+		{
+			prev_name = kit.name;
+			index = 1;
+		}
+	}
+
+	printf("[setup] kit parser initialized!\n");
 }

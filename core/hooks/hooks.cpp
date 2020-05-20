@@ -181,6 +181,15 @@ bool __fastcall hooks::create_move::hook(void* ecx, void* edx, int input_sample_
 	if (!csgo::local_player)
 		return create_move_original(input_sample_frametime, cmd);
 
+	if (!csgo::local_player->is_alive())
+		return create_move_original(input_sample_frametime, cmd);
+
+	//if (!interfaces::game_rules)
+	//	interfaces::game_rules = **reinterpret_cast<c_csgamerulesproxy***>(utilities::pattern_scan(GetModuleHandleA("client_panorama.dll"), "A1 ? ? ? ? 85 C0 0F 84 ? ? ? ? 80 B8 ? ? ? ? ? 74") + 0x1);
+
+	//if (interfaces::game_rules)
+	//	csgo::rounds = interfaces::game_rules->round_count();
+
 	uintptr_t* frame_pointer;
 	__asm mov frame_pointer, ebp;
 	bool& send_packet = *reinterpret_cast<bool*>(*frame_pointer - 0x1C);
@@ -192,7 +201,10 @@ bool __fastcall hooks::create_move::hook(void* ecx, void* edx, int input_sample_
 	if (menu.config.rank_revealer && (cmd->buttons & in_score) != 0)
 		interfaces::client->dispatch_user_message(cs_um_serverrankrevealall, 0, 0, nullptr);
 	
-	if (menu.config.misc && csgo::local_player->is_alive())
+	if (menu.config.fake_duck.second)
+		interfaces::engine->get_net_channel_info()->choked_packets <= 7 ? cmd->buttons &= ~in_duck : cmd->buttons |= in_duck;
+	std::cout << interfaces::engine->get_net_channel_info()->choked_packets << std::endl;
+	if (menu.config.misc)
 	{
 		if (menu.config.bhop)
 			features::misc::bunny_hop(cmd);
@@ -242,10 +254,16 @@ bool __fastcall hooks::create_move::hook(void* ecx, void* edx, int input_sample_
 	features::misc::quick_peak(cmd);
 
 	if (menu.config.auto_strafer)
-		features::misc::auto_strafer(cmd);
-	
-	if (menu.config.movement_blocker)
-		features::misc::movement_blocker(cmd);
+		features::misc::auto_strafer(cmd);	
+
+	if (!menu.menu_opened)
+	{
+		if (menu.config.movement_blocker.second)
+			features::misc::movement_blocker(cmd);
+
+		if (menu.config.crouch_blocker.second)
+			features::misc::crouch_blocker(cmd);
+	}
 
 	if (!old_net_channel && !send_net_msg_target)
 	{
@@ -347,19 +365,20 @@ void __stdcall hooks::sceneend::hook()
 
 void __stdcall hooks::fsn::hook(int frame_stage)
 {
-	if (frame_stage == FRAME_NET_UPDATE_POSTDATAUPDATE_START)
-		if (menu.config.skins_enable)
-			features::skins::run();
-
 	auto local_player = reinterpret_cast<player_t*>(interfaces::entity_list->get_client_entity(interfaces::engine->get_local_player()));
 	if (!local_player)
 		fsn_original(interfaces::client, frame_stage);
 
-	if (menu.force_update && interfaces::engine->is_connected() && interfaces::engine->is_in_game() && local_player->is_alive())
+	if (menu.force_update && interfaces::engine->is_connected() && interfaces::engine->is_in_game())
 	{
-		utilities::force_update();
+		//utilities::force_update();
+		interfaces::clientstate->full_update();
 		menu.force_update = !menu.force_update;
 	}
+
+	if (frame_stage == FRAME_NET_UPDATE_POSTDATAUPDATE_START)
+		if (menu.config.skins_enable)
+			features::skins::run();
 
 	fsn_original(interfaces::client, frame_stage);
 }
@@ -509,7 +528,16 @@ LRESULT __stdcall hooks::WndProc(HWND hwnd, UINT message, WPARAM wparam, LPARAM 
 		menu.config.trigger_bot_pair.second = false;
 
 	if (GetAsyncKeyState(menu.config.thirdperson_pair.first) & 1)
-		menu.config.thirdperson_pair.second = !menu.config.thirdperson_pair.second;
+		menu.config.thirdperson_pair.second = !menu.config.thirdperson_pair.second;	
+
+	if (GetAsyncKeyState(menu.config.movement_blocker.first) & 1)
+		menu.config.movement_blocker.second = !menu.config.movement_blocker.second;	
+
+	if (GetAsyncKeyState(menu.config.crouch_blocker.first) & 1)
+		menu.config.crouch_blocker.second = !menu.config.crouch_blocker.second;
+
+	if (GetAsyncKeyState(menu.config.fake_duck.first) & 1)
+		menu.config.fake_duck.second = !menu.config.fake_duck.second;
 
 	if (GetAsyncKeyState(menu.config.quick_peak_pair.first) & 1)
 		menu.config.do_quick_peek = !menu.config.do_quick_peek;

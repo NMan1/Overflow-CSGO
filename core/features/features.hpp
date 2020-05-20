@@ -12,6 +12,7 @@ namespace features {
 		void bunny_hop(c_usercmd* cmd);
 		void auto_strafer(c_usercmd* cmd);
 		void movement_blocker(c_usercmd* cmd);
+		void crouch_blocker(c_usercmd* cmd);
 		void thirdperson();
 		void auto_pistol(c_usercmd* cmd);
 		void quick_peak(c_usercmd* cmd);
@@ -28,8 +29,9 @@ namespace features {
 	};
 	namespace skins {
 		extern std::string file_skins;
-		int find_paint_kit(int item_definition_index);
-		void replace_paint_kit(int item_definition_index, int paint_kit);
+		int find_paint_kit(int item_definition_index, bool is_knife);
+		int find_knife_model(int item_definition_index);
+		void replace_paint_kit(int item_definition_index, int paint_kit, int knife_index = -1);
 		void run();
 		void create();
 		void save();

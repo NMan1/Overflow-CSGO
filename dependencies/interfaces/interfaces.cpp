@@ -27,6 +27,7 @@ player_prediction* interfaces::prediction = nullptr;
 player_move_helper* interfaces::move_helper = nullptr;
 i_weapon_system* interfaces::weapon_system = nullptr;
 hud_chat* interfaces::chat_element = nullptr;
+c_csgamerulesproxy* interfaces::game_rules = nullptr;
 
 bool interfaces::initialize() {
 	client = get_interface<i_base_client_dll, interface_type::index>("client_panorama.dll", "VClient018");
@@ -51,7 +52,7 @@ bool interfaces::initialize() {
 	clientmode = **reinterpret_cast<i_client_mode * **>((*reinterpret_cast<uintptr_t * *>(client))[10] + 5);
 	chat_element = *reinterpret_cast<hud_chat**>(reinterpret_cast<uintptr_t>(clientmode) + *reinterpret_cast<uint8_t*>(utilities::pattern_scan(GetModuleHandleA("client_panorama.dll"), "E8 ? ? ? ? 8B 4F ? 85 C9 74 06 51") + 7));
 	globals = **reinterpret_cast<c_global_vars_base * **>((*reinterpret_cast<uintptr_t * *>(client)[0] + 27));
-
+	game_rules = **reinterpret_cast<c_csgamerulesproxy***>(utilities::pattern_scan(GetModuleHandleA("client_panorama.dll"), "A1 ? ? ? ? 85 C0 0F 84 ? ? ? ? 80 B8 ? ? ? ? ? 74") + 0x1);
 	clientstate = **(i_client_state ***)(utilities::pattern_scan(GetModuleHandleA("engine.dll"), sig_client_state) + 1);
 	directx = **(IDirect3DDevice9***)(utilities::pattern_scan(GetModuleHandleA("shaderapidx9.dll"), sig_directx) + 1);
 	input = *(i_input**)(utilities::pattern_scan(GetModuleHandleA("client_panorama.dll"), sig_input) + 1);

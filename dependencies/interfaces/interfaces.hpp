@@ -25,6 +25,7 @@
 #include "i_player_movement.hpp"
 #include "i_weapon_system.hpp"
 #include "c_hud_chat.hpp"
+#include "c_csgamerulesproxy.hpp"
 
 namespace interfaces {
 	enum class interface_type { index, bruteforce };
@@ -93,6 +94,7 @@ namespace interfaces {
 	extern i_weapon_system* weapon_system;
 	extern hud_chat* chat_element;
 	extern i_client_mode* client_mode;
+	extern c_csgamerulesproxy* game_rules;
 
 	bool initialize();
 }

@@ -66,7 +66,6 @@ void utilities::force_update()
 	static auto fn = reinterpret_cast<std::int32_t(__thiscall*)(void*, std::int32_t)>(utilities::pattern_scan(GetModuleHandleA("client_panorama.dll"), ("55 8B EC 51 53 56 8B 75 08 8B D9 57 6B FE 2C")));
 	if (!fn)
 		return;
-
 	auto element = find_hud_element<std::uintptr_t*>(("CCSGO_HudWeaponSelection"));
 
 	auto hud_weapons = reinterpret_cast<hud_weapons_t*>(std::uintptr_t(element) - 0xA0);

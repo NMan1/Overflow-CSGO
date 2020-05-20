@@ -144,6 +144,30 @@ std::map<int, weapon_type_t> get_weapons(bool need_knife)
 	return k_item_names;
 }
 
+std::vector<weapon_name_t> knife_names =
+{
+	{ 0, "Default" },
+	{ WEAPON_BAYONET, "Bayonet" },
+	{ WEAPON_KNIFE_FLIP, "Flip Knife" },
+	{ WEAPON_KNIFE_GUT, "Gut Knife" },
+	{ WEAPON_KNIFE_KARAMBIT, "Karambit" },
+	{ WEAPON_KNIFE_M9_BAYONET, "M9 Bayonet" },
+	{ WEAPON_KNIFE_TACTICAL, "Huntsman Knife" },
+	{ WEAPON_KNIFE_FALCHION, "Falchion Knife" },
+	{ WEAPON_KNIFE_SURVIVAL_BOWIE, "Bowie Knife" },
+	{ WEAPON_KNIFE_BUTTERFLY, "Butterfly Knife" },
+	{ WEAPON_KNIFE_PUSH, "Shadow Daggers" },
+	{ WEAPON_KNIFE_URSUS, "Ursus Knife" },
+	{ WEAPON_KNIFE_GYPSY_JACKKNIFE, "Navaja Knife" },
+	{ WEAPON_KNIFE_STILETTO, "Stiletto Knife" },
+	{ WEAPON_KNIFE_WIDOWMAKER, "Talon Knife" },
+	{ WEAPON_KNIFE_CSS, "Classic Knife" },
+	{ WEAPON_KNIFE_CORD, "Paracord Knife" },
+	{ WEAPON_KNIFE_SURV, "Survival Knife" },
+	{ WEAPON_KNIFE_GYPSY_NOMAD, "Nomad Knife" },
+	{ WEAPON_KNIFE_SKELETON, "Skeleton Knife" }
+};
+
 std::map<int, const char*> get_groups(bool need_knife = false, bool need_groups = false)
 {
 	std::map<int, const char*> groups =
@@ -243,20 +267,18 @@ bool listbox_group_paints(
 	)
 {
 	auto current_value = selected_item;
-
-	ImGui::ListBoxHeader("##items", listbox_size);
+	//listbox_size.y -= 80;
+	ImGui::ListBoxHeader("##paints", listbox_size);
 	{
-		ImGui::Separator();
-
 		auto has_items = false;
 		auto index = 0;
 		for (auto& item : paint_kits)
 		{
+			index = item.id;
 			has_items = true;
 
 			if (selectable(item.name.c_str(), index == selected_item))
 				selected_item = index;
-			index = item.id;
 		}
 
 		if (has_items)
@@ -267,6 +289,34 @@ bool listbox_group_paints(
 	return current_value != selected_item;
 }
 
+bool listbox_group_models(
+	int& selected_item,
+	std::vector<weapon_name_t> paint_kits,
+	ImVec2 listbox_size
+	)
+{
+	listbox_size.y = 80;
+	auto current_value = selected_item;
+	ImGui::ListBoxHeader("##models", listbox_size);
+	{
+		auto has_items = false;
+		auto index = 0;
+		for (auto& item : paint_kits)
+		{
+			index = item.definition_index;
+			has_items = true;
+
+			if (selectable(item.name, index == selected_item))
+				selected_item = index;
+		}
+
+		if (has_items)
+			ImGui::Separator();
+	}
+	ImGui::ListBoxFooter();
+
+	return current_value != selected_item;
+}
 
 namespace ImGui
 {
@@ -344,7 +394,7 @@ void __stdcall Menu::setup_resent(IDirect3DDevice9* device)
 	colors[ImGuiCol_TitleBgActive] = ImVec4(0.20f, 0.20f, 0.20f, 1.00f);
 	colors[ImGuiCol_MenuBarBg] = ImVec4(0.40f, 0.40f, 0.55f, 0.80f);
 	colors[ImGuiCol_ScrollbarBg] = ImVec4(0.10f, 0.10f, 0.10f, 1.0f);
-	colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.654, 0.094, 0.278, .25f);
+	colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.654, 0.094, 0.278, 1.0f);
 	colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.654, 0.094, 0.278, .70f);
 	colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(0.654, 0.094, 0.278, .70f);
 	colors[ImGuiCol_ComboBg] = ImVec4(0.20f, 0.20f, 0.20f, 0.99f);
@@ -474,7 +524,6 @@ void Menu::render()
 		case 5:
 			settings_tab(); break;
 		}
-
 
 		ImGui::End();
 	}
@@ -821,7 +870,6 @@ void Menu::visuals_tab()
 	} ImGui::EndChild(true, menu.font_child_title, main_red);
 	ImGui::Custom::ChildSettingsEnd();
 
-
 	ImGui::Dummy(ImVec2(0, 6));
 	ImGui::Dummy(ImVec2(6, 0)); ImGui::SameLine();
 	ImGui::SetCursorPosY(273);
@@ -883,9 +931,21 @@ void Menu::misc_tab()
 		ImGui::SetCursorPosX(399 - 175);
 		ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 5);
 		ImGui::Checkbox("No Scope", &menu.config.no_scope);
-		ImGui::Checkbox("Movement Blocker", &menu.config.movement_blocker);
+		ImGui::Checkbox("Movement Blocker", &menu.config.movement_blocker.second);
 		ImGui::SameLine();
-		ImGui::SetCursorPosX(399 - 175);
+		ImGui::SetCursorPosX(399 - 163);
+		ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 8);
+		ImGui::Hotkey("##KeyMoivement", &menu.config.movement_blocker.first, ImVec2(150, 30));		
+		ImGui::Checkbox("Crouch Blocker", &menu.config.crouch_blocker.second);
+		ImGui::SameLine();
+		ImGui::SetCursorPosX(399 - 163);
+		ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 2);
+		ImGui::Hotkey("##CrocuhMovm", &menu.config.crouch_blocker.first, ImVec2(150, 30));		
+		ImGui::Checkbox("Fake Duck", &menu.config.fake_duck.second);
+		ImGui::SameLine();
+		ImGui::SetCursorPosX(399 - 163);
+		ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 2);
+		ImGui::Hotkey("##fakeduckkey", &menu.config.fake_duck.first, ImVec2(150, 30));
 		ImGui::Checkbox("Rank Revealer", &menu.config.rank_revealer);
 	} ImGui::EndChild(true, menu.font_child_title, main_red);
 	ImGui::Custom::ChildSettingsEnd();
@@ -989,11 +1049,12 @@ void Menu::skins_tab()
 
 		ImGui::SetCursorPosX(-16);
 		ImGui::SetCursorPosY(ImGui::GetCursorPosY()-7);
-		listbox_group_weapons(menu.config.weapon_index, get_groups(true, false), weapons, get_listbox_size(261, state ? 26.f : -5.f));
+		listbox_group_weapons(menu.weapon_index, get_groups(true, false), weapons, get_listbox_size(261, state ? -5.f : -5.f));
 
 		ImGui::SetCursorPosX((261 - 148)*.5);
+		ImGui::SetCursorPosY(ImGui::GetCursorPosY()-4);
 		if (ImGui::Button("Current Weapon"))
-			menu.config.weapon_index = weapon_index;
+			menu.weapon_index = weapon_index;
 
 	} ImGui::EndChild(true, menu.font_child_title, main_red);
 	ImGui::PopStyleVar();
@@ -1004,15 +1065,22 @@ void Menu::skins_tab()
 	ImGui::SetCursorPosY(46);
 	ImGui::SetCursorPosX(289);
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(12, 24));
-	ImGui::BeginChild("Skin", ImVec2(261, 440), true, ImGuiWindowFlags_AlwaysUseWindowPadding);
+	ImGui::BeginChild("Skins", ImVec2(261, 440), true, ImGuiWindowFlags_AlwaysUseWindowPadding | ImGuiWindowFlags_NoScrollbar);
 	{
+		ImGui::SetScrollY(0);
 		static auto show_all_kits = false;
-		ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 2);
-		ImGui::Checkbox("All skins", &show_all_kits);
+		ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 5);
+		ImGui::Checkbox("Weapon specific", &show_all_kits);
+		ImGui::Separator();
 
+		ImGui::Text("Knife Model");
 		ImGui::SetCursorPosX(-16);
-		ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 7);
-		listbox_group_paints(menu.config.skin_index, parser_skins, get_listbox_size(261, -5.f));
+		listbox_group_models(menu.knife_model, knife_names, get_listbox_size(261, -5.f));
+		ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 3);
+		ImGui::Text("Paint Kit");
+		ImGui::SetCursorPosX(-16);
+		//ImGui::SetCursorPosY(ImGui::GetCursorPosY()-12);
+		listbox_group_paints(menu.skin_index, parser_skins, get_listbox_size(261, -5.f));
 
 	} ImGui::EndChild(true, menu.font_child_title, main_red);
 	ImGui::PopStyleVar();
@@ -1025,13 +1093,13 @@ void Menu::skins_tab()
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(12, 24));
 	ImGui::BeginChild("##Settings", ImVec2(261, 440), true, ImGuiWindowFlags_AlwaysUseWindowPadding);
 	{
-		if (ImGui::Button("Update", ImVec2(70, 30)))
+		if (ImGui::Button("Update", ImVec2(68, 30)))
 		{
-			features::skins::replace_paint_kit(menu.config.weapon_index, menu.config.skin_index);
+			features::skins::replace_paint_kit(menu.weapon_index, menu.skin_index, menu.knife_model);
 			force_update = true;
 		}		
 
-		if (ImGui::Button("Save", ImVec2(60, 30)))
+		if (ImGui::Button(" Save", ImVec2(60, 30)))
 			features::skins::save();
 		
 	} ImGui::EndChild(true, menu.font_child_title, main_red);
@@ -1083,7 +1151,6 @@ void Menu::settings_tab()
 		ImGui::SetCursorPosY((440 - 50));
 		if (ImGui::Button("Show Debug Console"))
 		{
-			console::initialize("Overflow Console");
 			menu.config.show_console_pair.first = !menu.config.show_console_pair.first;
 			if (!menu.config.show_console_pair.second)
 			{

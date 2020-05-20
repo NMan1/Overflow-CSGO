@@ -9,6 +9,8 @@ DWORD WINAPI initialize(void* instance)
 	while (!GetModuleHandleA("serverbrowser.dll"))
 		Sleep(200);
 
+	console::initialize("Overflow Console");
+
 	try 
 	{
 		interfaces::initialize();

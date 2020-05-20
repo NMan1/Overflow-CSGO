@@ -38,6 +38,9 @@ public:
 	}
 	vec3_t& operator*=(float v) {
 		x *= v; y *= v; z *= v; return *this;
+	}	
+	bool operator==(const vec3_t& v) {
+		return (x == v.x) && (y == v.y) && (y == v.y);
 	}
 	vec3_t operator+(const vec3_t& v) {
 		return vec3_t{ x + v.x, y + v.y, z + v.z };

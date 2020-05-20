@@ -135,6 +135,7 @@
     <ClInclude Include="core\menu\imgui\stb_textedit.h" />
     <ClInclude Include="core\menu\imgui\stb_truetype.h" />
     <ClInclude Include="core\menu\menu.h" />
+    <ClInclude Include="dependencies\interfaces\c_csgamerulesproxy.hpp" />
     <ClInclude Include="dependencies\interfaces\c_handle.hpp" />
     <ClInclude Include="dependencies\interfaces\c_hud_chat.hpp" />
     <ClInclude Include="dependencies\interfaces\I_client_mode.h" />

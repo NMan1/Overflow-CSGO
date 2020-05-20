@@ -169,10 +169,14 @@ enum item_definition_indexes {
 	WEAPON_KNIFE_SURVIVAL_BOWIE = 514,
 	WEAPON_KNIFE_BUTTERFLY,
 	WEAPON_KNIFE_PUSH,
+	WEAPON_KNIFE_CORD,
+	WEAPON_KNIFE_SURV,
 	WEAPON_KNIFE_URSUS = 519,
 	WEAPON_KNIFE_GYPSY_JACKKNIFE,
+	WEAPON_KNIFE_GYPSY_NOMAD,
 	WEAPON_KNIFE_STILETTO = 522,
 	WEAPON_KNIFE_WIDOWMAKER,
+	WEAPON_KNIFE_SKELETON = 525,
 	GLOVE_STUDDED_BLOODHOUND = 5027,
 	GLOVE_T_SIDE = 5028,
 	GLOVE_CT_SIDE = 5029,
@@ -189,6 +193,16 @@ enum team : int
 	team_spec = 1,
 	team_t = 2,
 	team_ct = 3
+};
+
+struct weapon_name_t
+{
+	constexpr weapon_name_t(const int definition_index, const char* name) :
+		definition_index(definition_index),
+		name(name)
+	{}
+	int definition_index = 0;
+	const char* name = nullptr;
 };
 
 class entity_t {
