@@ -9,7 +9,7 @@ https://github.com/designer1337/csgo-cheat-base
 
 Injecting Steps:
 1. Download the git and install the included .tff font icon file
-2. go to, C:\Users\your name\Documents and create a folder called "overflow
+2. go to, C:\Users\your name\Documents and create a folder called "overflow" with two folders inside, skins and config. Then copy and paste the skins and defualt file into those respective folders.
 3. add the Default file config included in the git to that folder.
 4. Build in x86 and manual map.
 5. Add -disable_d3d9ex in steam csgo launch options for skins to not be black
@@ -18,5 +18,8 @@ In the future ill remove the need for manually creating the directory
 
 # Pictures:
 
-<img src="https://i.gyazo.com/cd7b462b74e9fb080425e71fc70895a1.jpg"/>  
-<img src="https://i.gyazo.com/8fcee415b8a660c771b9c60cf972e86d.jpg"/>  
+<img src="https://i.gyazo.com/3c45db1361a6a27d6d7a468f83b4297f.jpg"/>  
+<img src="https://i.gyazo.com/5ec3f752cdb154191da8faa4b80ccfd3.jpg"/>
+<img src="https://i.gyazo.com/fbd7d26ed8d209f959ac3f19ef8fe852.jpg"/>
+<img src="https://i.gyazo.com/be5ea6aa4bd5a1441923c0c93ff2ebe4.jpg"/>
+<img src="https://i.gyazo.com/ea68694dbc8511810c0b008a18e5dd40.jpg"/>
