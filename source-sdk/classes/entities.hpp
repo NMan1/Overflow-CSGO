@@ -367,6 +367,7 @@ public:
 	NETVAR("DT_WeaponCSBase", "m_flRecoilIndex", recoil_index, float);
 	NETVAR("DT_WeaponCSBaseGun", "m_zoomLevel", zoom_level, float);
 	NETVAR("DT_BaseAttributableItem", "m_iItemDefinitionIndex", item_definition_index, short);
+	NETVAR("DT_BaseAttributableItem", "m_nFallbackPaintKit", fallback_paint_kit, int);
 	NETVAR("DT_BaseCombatWeapon", "m_iEntityQuality", entity_quality, int);
 
 	float inaccuracy() {

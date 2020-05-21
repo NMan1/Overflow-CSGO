@@ -2,6 +2,7 @@
 #include "../features.hpp"
 #define INVALID_EHANDLE_INDEX 0xFFFFFFFF
 
+static int ticker = 0;
 struct knife_glove_info_t
 {
 	constexpr knife_glove_info_t(int index, const char* model, const char* icon = nullptr) :
@@ -75,9 +76,13 @@ void features::skins::create()
 		CoTaskMemFree(pathToDocuments);
 	}
 
-	std::ofstream out{ path / "skins" };
-	out << default_skins;
-	out.close();
+	if (!std::filesystem::exists(path / "skins"))
+	{
+		std::ofstream out{ path / "skins" };
+		out << default_skins;
+		out.close();
+		console::log("[setup] skins file initialized!\n");
+	}
 }
 
 void features::skins::load()
@@ -143,7 +148,7 @@ int features::skins::find_knife_model(int item_definition_index)
 				return std::stoi(file_skins.substr(pos_first_mid + 1, pos_secound_mid - pos_first_mid - 1));
 }
 
-void features::skins::replace_paint_kit(int item_definition_index, int paint_kit, int knife_index)
+void features::skins::replace_paint_model_kit(int item_definition_index, int paint_kit, int knife_index)
 {
 	auto pos_wep = file_skins.find(":" + std::to_string(item_definition_index) + ",");
 	auto pos_first_mid = file_skins.find(",", pos_wep + 1);
@@ -190,25 +195,13 @@ void features::skins::run()
 			continue;
 		
 		const auto knife_index = local_player->team() == team::team_ct ? WEAPON_KNIFE : WEAPON_KNIFE_T;
-		const auto index = is_knife(weapon->item_definition_index()) ? knife_index : weapon->item_definition_index();
+		const auto index = weapon->client_class()->class_id == class_ids::cknife ? knife_index : weapon->item_definition_index();
 		const auto paint_kit = find_paint_kit(index, index == knife_index);
-		static auto old_state = -1;
-		static auto update_knife = false;
 
-		// fuck me, knife skins wont apply without forceupdating
-		if (is_knife(weapon->item_definition_index()) && !is_knife(active_weapon->item_definition_index()))
-		{
-			if (old_state != csgo::local_player->life_state())
-			{
-				update_knife = true;
-				old_state = csgo::local_player->life_state();
-			}
-		}
-		
 		if (paint_kit)
-		{
+		{		
 			weapon->fallback_paint_kit() = paint_kit;
-			if (is_knife(active_weapon->item_definition_index()))
+			if (weapon->client_class()->class_id == class_ids::cknife)
 			{
 				auto knife_model = find_knife_model(knife_index);
 				if (!knife_model)
@@ -227,33 +220,24 @@ void features::skins::run()
 					continue;
 
 				auto view_model_weapon = reinterpret_cast<attributable_item_t*>(interfaces::entity_list->get_client_entity_handle(view_model_weapon_h));
-				if (view_model_weapon != weapon)
+				if (!view_model_weapon)
 					continue;
 
-				weapon->model_index() = interfaces::model_info->get_model_index(info->model);
-				view_model->model_index() = interfaces::model_info->get_model_index(info->model);
-				view_model->view_model_index() = interfaces::model_info->get_model_index(info->model);
-				weapon->world_model_handle() = interfaces::model_info->get_model_index(info->model) + 1;
 				weapon->item_definition_index() = info->index;
+				if (view_model_weapon == weapon)
+				{
+					view_model->model_index() = interfaces::model_info->get_model_index(info->model);
+					view_model->view_model_index() = interfaces::model_info->get_model_index(info->model);
+				}
+				weapon->model_index() = interfaces::model_info->get_model_index(info->model);
+				weapon->world_model_handle() = interfaces::model_info->get_model_index(info->model) + 1;
 				weapon->entity_quality() = 3;
 			}
-
 			weapon->original_owner_xuid_low() = 0;
 			weapon->original_owner_xuid_high() = 0;
+			weapon->fallback_wear() = 0;
 			weapon->fallback_seed() = 661;
 			weapon->item_id_high() = -1;
-		}
-
-		if (update_knife)
-		{
-			if (is_knife(active_weapon->item_definition_index()))
-			{
-				//interfaces::engine->execute_cmd("cl_fullupdate 1");
-				menu.force_update = true;
-				//interfaces::clientstate->full_update();
-				//interfaces::console->get_convar("sv_cheats")->set_value(1);
-				update_knife = false;
-			}
 		}
 	}
 }

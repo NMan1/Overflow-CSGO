@@ -22,6 +22,7 @@ void Menu::run(const char* name) noexcept {
 		std::filesystem::directory_iterator{ },
 		std::back_inserter(configs),
 		[](const auto& entry) { return entry.path().filename().string(); });
+	console::log("[setup] default config loaded!\n");
 }
 
 void Menu::load(size_t id) noexcept {

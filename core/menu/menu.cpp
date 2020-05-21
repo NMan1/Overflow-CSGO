@@ -1031,37 +1031,28 @@ void Menu::skins_tab()
 		ImGui::Checkbox("Enable Skins", &menu.config.skins_enable);
 		ImGui::Separator();
 
-		auto weapon_index = 0;
 		const auto weapons = get_weapons(true);
-		auto can_change_index = [weapons, &weapon_index]()
-		{
-			if (!csgo::local_player || !csgo::local_player->is_alive())
-				return false;
-
-			if (!csgo::local_player->active_weapon())
-				return false;
-
-			weapon_index = csgo::local_player->active_weapon()->item_definition_index();
-			return weapons.count(weapon_index) > 0;
-		};
-
-		const auto state = can_change_index();
 
 		ImGui::SetCursorPosX(-16);
 		ImGui::SetCursorPosY(ImGui::GetCursorPosY()-7);
-		listbox_group_weapons(menu.weapon_index, get_groups(true, false), weapons, get_listbox_size(261, state ? -5.f : -5.f));
-
+		listbox_group_weapons(menu.weapon_index, get_groups(true, false), weapons, get_listbox_size(261, -5.f));
+		
 		ImGui::SetCursorPosX((261 - 148)*.5);
 		ImGui::SetCursorPosY(ImGui::GetCursorPosY()-4);
 		if (ImGui::Button("Current Weapon"))
-			menu.weapon_index = weapon_index;
+		{
+			auto index = csgo::local_player->active_weapon()->item_definition_index();
+			if (index >= 500 && index < 5000) // if we have a knife model changed
+				index = csgo::local_player->team() == team::team_ct ? WEAPON_KNIFE : WEAPON_KNIFE_T;
+			menu.weapon_index = index;
+		}
 
 	} ImGui::EndChild(true, menu.font_child_title, main_red);
 	ImGui::PopStyleVar();
-
+	
 	ImGui::Dummy(ImVec2(0, 6));
 	ImGui::Dummy(ImVec2(6, 0)); ImGui::SameLine();
-
+		
 	ImGui::SetCursorPosY(46);
 	ImGui::SetCursorPosX(289);
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(12, 24));
@@ -1095,7 +1086,7 @@ void Menu::skins_tab()
 	{
 		if (ImGui::Button("Update", ImVec2(68, 30)))
 		{
-			features::skins::replace_paint_kit(menu.weapon_index, menu.skin_index, menu.knife_model);
+			features::skins::replace_paint_model_kit(menu.weapon_index, menu.skin_index, menu.knife_model);
 			force_update = true;
 		}		
 

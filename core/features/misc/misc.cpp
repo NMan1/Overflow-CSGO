@@ -160,7 +160,8 @@ void features::misc::crouch_blocker(c_usercmd* cmd)
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-float best_cam_dist() {
+float best_cam_dist() 
+{
 	ray_t ray;
 	trace_t tr;
 	trace_world_only filter;

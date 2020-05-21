@@ -61,12 +61,15 @@ public:
 	void execute_cmd(const char* cmd) {
 		using original_fn = void(__thiscall*)(iv_engine_client*, const char*);
 		return (*(original_fn * *)this)[108](this, cmd); // this always seems to crash whilst debugging, just feel free to continue.
+	}	
+	void execute_unrestricted_cmd(const char* cmd, const char* szFlag = nullptr) {
+		using original_fn = void(__thiscall*)(iv_engine_client*, const char*, const char*);
+		return (*(original_fn * *)this)[114](this, cmd, szFlag); // this always seems to crash whilst debugging, just feel free to continue.
 	}
 	void set_view_angles(vec3_t& angles) {
 		using original_fn = void(__thiscall*)(iv_engine_client*, vec3_t&);
 		return (*(original_fn * *)this)[19](this, angles);
 	}
-
 	void get_view_angles(vec3_t& angles) {
 		return utilities::call_virtual<void(__thiscall*)(void*, vec3_t&)>(this, 18)(this, angles);
 	}

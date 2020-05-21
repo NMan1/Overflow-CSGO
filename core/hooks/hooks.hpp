@@ -72,6 +72,11 @@ namespace hooks
 	namespace file_system {
 		using fn = bool(__fastcall*)(void*, void*);
 		bool __fastcall hook(void* ecx, void* edx);
+	}		
+
+	namespace sv_cheats {
+		using fn = bool(__fastcall*)(void*);
+		bool __fastcall hook(void* convar, void* edx);
 	}	
 
 	namespace send_net_msg {

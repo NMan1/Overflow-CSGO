@@ -15,6 +15,7 @@ hooks::fsn::fn				fsn_original				= nullptr;
 hooks::list_leaves::fn		list_leaves_original		= nullptr;
 hooks::file_check::fn		file_check_original         = nullptr;
 hooks::file_system::fn		file_system_original		= nullptr;
+hooks::sv_cheats::fn		sv_cheats_original   		= nullptr;
 hooks::send_net_msg::fn		send_net_msg_original       = nullptr;
 
 using fn_org = void(__fastcall*)(void*, void*);
@@ -64,6 +65,7 @@ bool hooks::initialize()
 	auto list_leaves_target = reinterpret_cast<void*>(get_virtual(interfaces::engine->get_bsp_tree_query(), 6));
 	auto file_check_target = reinterpret_cast<void*>(utilities::pattern_scan(GetModuleHandleW(L"engine.dll"), "55 8B EC 81 EC ? ? ? ? 53 8B D9 89 5D F8 80"));
 	auto file_system_target = reinterpret_cast<void*>(get_virtual(**reinterpret_cast<void***>(utilities::pattern_scan(GetModuleHandleW(L"engine.dll"), "8B 0D ? ? ? ? 8D 95 ? ? ? ? 6A 00 C6") + 0x2), 128));
+	auto sv_cheats_target = reinterpret_cast<void*>(get_virtual(interfaces::console->get_convar("sv_cheats"), 13));
 	auto present_address = utilities::pattern_scan(GetModuleHandleW(L"gameoverlayrenderer.dll"), "FF 15 ? ? ? ? 8B F8 85 DB") + 0x2;
 	auto reset_address = utilities::pattern_scan(GetModuleHandleW(L"gameoverlayrenderer.dll"), "FF 15 ? ? ? ? 8B F8 85 FF 78 18") + 0x2;
 	interfaces::engine->is_in_game() ? send_net_msg_target = reinterpret_cast<void*>(get_virtual(old_net_channel = (i_net_channel*)interfaces::clientstate->net_channel, 40)) : send_net_msg_target = nullptr;
@@ -134,15 +136,20 @@ bool hooks::initialize()
 		return false;
 	}	
 
-	if (MH_CreateHook(file_check_target, &file_check::hook, reinterpret_cast<void**>(&file_check_original)) != MH_OK) {
+	if (MH_CreateHook(sv_cheats_target, &sv_cheats::hook, reinterpret_cast<void**>(&sv_cheats_original)) != MH_OK) {
 		throw std::runtime_error("failed to initialize file_check_target. (outdated index?)");
 		return false;
-	}		
+	}
 
 	if (MH_CreateHook(file_system_target, &file_system::hook, reinterpret_cast<void**>(&file_system_original)) != MH_OK) {
 		throw std::runtime_error("failed to initialize file_check_target. (outdated index?)");
 		return false;
 	}	
+
+	if (MH_CreateHook(file_check_target, &file_check::hook, reinterpret_cast<void**>(&file_check_original)) != MH_OK) {
+		throw std::runtime_error("failed to initialize file_check_target. (outdated index?)");
+		return false;
+	}		
 
 	if (MH_EnableHook(MH_ALL_HOOKS) != MH_OK) {
 		throw std::runtime_error("failed to enable hooks.");
@@ -203,7 +210,7 @@ bool __fastcall hooks::create_move::hook(void* ecx, void* edx, int input_sample_
 	
 	if (menu.config.fake_duck.second)
 		interfaces::engine->get_net_channel_info()->choked_packets <= 7 ? cmd->buttons &= ~in_duck : cmd->buttons |= in_duck;
-	std::cout << interfaces::engine->get_net_channel_info()->choked_packets << std::endl;
+
 	if (menu.config.misc)
 	{
 		if (menu.config.bhop)
@@ -371,8 +378,8 @@ void __stdcall hooks::fsn::hook(int frame_stage)
 
 	if (menu.force_update && interfaces::engine->is_connected() && interfaces::engine->is_in_game())
 	{
-		//utilities::force_update();
-		interfaces::clientstate->full_update();
+		utilities::force_update();
+		interfaces::clientstate->cl_full_update();
 		menu.force_update = !menu.force_update;
 	}
 
@@ -502,6 +509,7 @@ bool __fastcall hooks::send_net_msg::hook(i_net_channel* thisptr, int edx, i_net
 	return send_net_msg_original(thisptr, edx, pMessage, bForceReliable, bVoice);
 }
 
+// yes I know a bit too much
 void __fastcall hooks::file_check::hook(void* ecx, void* edx)
 {
 	return;
@@ -510,6 +518,18 @@ void __fastcall hooks::file_check::hook(void* ecx, void* edx)
 bool __fastcall hooks::file_system::hook(void* ecx, void* edx) 
 {
 	return true;
+}
+
+bool __fastcall hooks::sv_cheats::hook(void* convar, void* edx)
+{
+	static auto cam_think = utilities::pattern_scan(GetModuleHandleW(L"client_panorama.dll"), "85 C0 75 30 38 86");
+	if (!sv_cheats_original)
+		return false;
+
+	if (reinterpret_cast<DWORD>(_ReturnAddress()) == reinterpret_cast<DWORD>(cam_think))
+		return true;
+
+	return sv_cheats_original(convar);
 }
 
 LRESULT __stdcall hooks::WndProc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)

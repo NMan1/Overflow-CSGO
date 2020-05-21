@@ -9,7 +9,7 @@ DWORD WINAPI initialize(void* instance)
 	while (!GetModuleHandleA("serverbrowser.dll"))
 		Sleep(200);
 
-	console::initialize("Overflow Console");
+	//console::initialize("Overflow Console");
 
 	try 
 	{
@@ -17,7 +17,7 @@ DWORD WINAPI initialize(void* instance)
 		hooks::initialize();
 		render::initialize();
 		kit_parser.setup();
-		//features::skins::create();
+		features::skins::create();
 		features::skins::load();
 		knife_hook.knife_animation();
 

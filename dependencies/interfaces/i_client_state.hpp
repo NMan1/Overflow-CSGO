@@ -86,7 +86,7 @@ public:
 	bool is_in_simulation;
 	char pad_4C99[3];
 	uint32_t old_tick_count;
-	float tick_remainder;
+	float tick_remainder;     
 	float frame_time;
 	int32_t last_outgoing_command;
 	int32_t choked_commands;
@@ -98,6 +98,11 @@ public:
 
 	void full_update() {
 		delta_tick = -1;
+	}	
+	void cl_full_update() {
+		using fn = void(__cdecl*)();
+		auto force_update = reinterpret_cast<fn>(utilities::pattern_scan(GetModuleHandleW(L"engine.dll"), "A1 ? ? ? ? B9 ? ? ? ? 56 FF 50 14 8B 34"));
+		force_update();
 	}
 };
 
