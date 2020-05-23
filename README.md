@@ -18,6 +18,9 @@ Injecting Steps:
 
 In the future ill remove the need for manually creating the directory 
 
+# GIf:
+![menu gif](gif.gif)
+
 # Pictures:
 
 <img src="https://i.gyazo.com/3c45db1361a6a27d6d7a468f83b4297f.jpg"/>  
