@@ -11,6 +11,16 @@ enum data_update_type_t {
 	DATA_UPDATE_DATATABLE_CHANGED,
 };
 
+enum skin_quality {
+	CONSUMER = 0,
+	INDUSTRIAL,
+	MIL_SPEC,
+	RESTRICTED,
+	CLASSIFIED,
+	COVERT,
+	RARE,
+};
+
 enum cs_weapon_type {
 	WEAPONTYPE_KNIFE = 0,
 	WEAPONTYPE_PISTOL,

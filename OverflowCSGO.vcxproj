@@ -183,6 +183,7 @@
     <ClInclude Include="dependencies\math\math.hpp" />
     <ClInclude Include="dependencies\utilities\console\console.hpp" />
     <ClInclude Include="dependencies\utilities\fnv.hpp" />
+    <ClInclude Include="dependencies\utilities\json.hpp" />
     <ClInclude Include="dependencies\utilities\md5\md5.hpp" />
     <ClInclude Include="dependencies\utilities\netvars\netvars.hpp" />
     <ClInclude Include="dependencies\utilities\renderer\renderer.hpp" />

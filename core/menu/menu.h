@@ -259,7 +259,7 @@ public:
 	bool force_update = false;
 	int weapon_index;
 	int skin_index;
-	int knife_model = -1;
+	int knife_model = 0;
 
 	std::vector <std::string> spectators = {};
 	int vec_size = 0;

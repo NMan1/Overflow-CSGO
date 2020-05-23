@@ -75,10 +75,21 @@ void c_kit_parser::setup() noexcept
 			char name[256];
 
 			V_UCS2ToUTF8(wide_name, name, sizeof(name));
+			std::string fixed_name(name);
+			// fix shitty utf8 converion leaving random stupid fucking chachters breaking everything
+			if (fixed_name.find("rmungandr") != std::string::npos)
+				fixed_name = "Emerald Jormungandr";			
+			else if (fixed_name.find("lnir") != std::string::npos)
+				fixed_name = "Mjolnir";			
+			else if (fixed_name.find("Sunset Storm") != std::string::npos)
+				fixed_name = "Sunset Storm";
+			else if (fixed_name.find("Dragon King") != std::string::npos)
+				fixed_name = "Dragon King";
+
 			if (paint_kit->id < 10000)
-				parser_skins.push_back({ paint_kit->id, name });
+				parser_skins.push_back({ paint_kit->id, fixed_name });
 			else
-				parser_gloves.push_back({ paint_kit->id, name });
+				parser_gloves.push_back({ paint_kit->id, fixed_name });
 		}
 		std::sort(parser_skins.begin(), parser_skins.end());
 		std::sort(parser_gloves.begin(), parser_gloves.end());

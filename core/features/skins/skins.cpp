@@ -1,7 +1,8 @@
 #include "../../../dependencies/common_includes.hpp"
+#include "../../../dependencies/utilities/json.hpp"
 #include "../features.hpp"
 #define INVALID_EHANDLE_INDEX 0xFFFFFFFF
-
+ 
 static int ticker = 0;
 struct knife_glove_info_t
 {
@@ -13,6 +14,63 @@ struct knife_glove_info_t
 	int index;
 	const char* model;
 	const char* icon;
+};
+
+std::list <std::pair<int, std::vector<std::pair<std::string, std::string>>>> weapon_skin_quality_list =
+{
+	{WEAPON_CZ75A, std::vector<std::pair<std::string, std::string>>{}},
+	{WEAPON_DEAGLE, std::vector<std::pair<std::string, std::string>>{}},
+	{WEAPON_ELITE, std::vector<std::pair<std::string, std::string>>{}},
+	{WEAPON_FIVESEVEN, std::vector<std::pair<std::string, std::string>>{}},
+	{WEAPON_GLOCK, std::vector<std::pair<std::string, std::string>>{}},
+	{WEAPON_HKP2000, std::vector<std::pair<std::string, std::string>>{}},
+	{WEAPON_P250, std::vector<std::pair<std::string, std::string>>{}},
+	{WEAPON_REVOLVER, std::vector<std::pair<std::string, std::string>>{}},
+	{WEAPON_TEC9, std::vector<std::pair<std::string, std::string>>{}},
+	{WEAPON_USP_SILENCER, std::vector<std::pair<std::string, std::string>>{}},
+	{WEAPON_AK47, std::vector<std::pair<std::string, std::string>>{}},
+	{WEAPON_AUG, std::vector<std::pair<std::string, std::string>>{}},
+	{WEAPON_AWP, std::vector<std::pair<std::string, std::string>>{}},
+	{WEAPON_FAMAS, std::vector<std::pair<std::string, std::string>>{}},
+	{WEAPON_G3SG1, std::vector<std::pair<std::string, std::string>>{}},
+	{WEAPON_GALILAR, std::vector<std::pair<std::string, std::string>>{}},
+	{WEAPON_M4A1_SILENCER, std::vector<std::pair<std::string, std::string>>{}},
+	{WEAPON_M4A1, std::vector<std::pair<std::string, std::string>>{}},
+	{WEAPON_SCAR20, std::vector<std::pair<std::string, std::string>>{}},
+	{WEAPON_SG556, std::vector<std::pair<std::string, std::string>>{}},
+	{WEAPON_SSG08, std::vector<std::pair<std::string, std::string>>{}}, 
+	{WEAPON_MAC10, std::vector<std::pair<std::string, std::string>>{}},
+	{WEAPON_MP5SD, std::vector<std::pair<std::string, std::string>>{}},
+	{WEAPON_MP7, std::vector<std::pair<std::string, std::string>>{}},
+	{WEAPON_MP9, std::vector<std::pair<std::string, std::string>>{}},
+	{WEAPON_BIZON, std::vector<std::pair<std::string, std::string>>{}},
+	{WEAPON_P90, std::vector<std::pair<std::string, std::string>>{}},
+	{WEAPON_UMP45, std::vector<std::pair<std::string, std::string>>{}},
+	{WEAPON_MAG7, std::vector<std::pair<std::string, std::string>>{}},
+	{WEAPON_NOVA, std::vector<std::pair<std::string, std::string>>{}},
+	{WEAPON_SAWEDOFF, std::vector<std::pair<std::string, std::string>>{}},
+	{WEAPON_XM1014, std::vector<std::pair<std::string, std::string>>{}},
+	{WEAPON_M249, std::vector<std::pair<std::string, std::string>>{}},
+	{WEAPON_NEGEV, std::vector<std::pair<std::string, std::string>>{}},
+	{WEAPON_KNIFE_GYPSY_NOMAD, std::vector<std::pair<std::string, std::string>>{}},
+	{WEAPON_KNIFE_SKELETON, std::vector<std::pair<std::string, std::string>>{}},
+	{WEAPON_KNIFE_SURV, std::vector<std::pair<std::string, std::string>>{}},
+	{WEAPON_KNIFE_CORD, std::vector<std::pair<std::string, std::string>>{}},
+	{WEAPON_KNIFE_CSS, std::vector<std::pair<std::string, std::string>>{}},
+	{WEAPON_KNIFE_GYPSY_JACKKNIFE, std::vector<std::pair<std::string, std::string>>{}},
+	{WEAPON_KNIFE_STILETTO, std::vector<std::pair<std::string, std::string>>{}},
+	{WEAPON_KNIFE_WIDOWMAKER, std::vector<std::pair<std::string, std::string>>{}},
+	{WEAPON_KNIFE_URSUS, std::vector<std::pair<std::string, std::string>>{}},
+	{WEAPON_BAYONET, std::vector<std::pair<std::string, std::string>>{}},
+	{WEAPON_KNIFE_SURVIVAL_BOWIE, std::vector<std::pair<std::string, std::string>>{}},
+	{WEAPON_KNIFE_BUTTERFLY, std::vector<std::pair<std::string, std::string>>{}},
+	{WEAPON_KNIFE_FALCHION, std::vector<std::pair<std::string, std::string>>{}},
+	{WEAPON_KNIFE_FLIP, std::vector<std::pair<std::string, std::string>>{}},
+	{WEAPON_KNIFE_GUT, std::vector<std::pair<std::string, std::string>>{}},
+	{WEAPON_KNIFE_TACTICAL, std::vector<std::pair<std::string, std::string>>{}},
+	{WEAPON_KNIFE_KARAMBIT, std::vector<std::pair<std::string, std::string>>{}},
+	{WEAPON_KNIFE_M9_BAYONET, std::vector<std::pair<std::string, std::string>>{}},
+	{WEAPON_KNIFE_PUSH, std::vector<std::pair<std::string, std::string>>{}},
 };
 
 std::map<int, knife_glove_info_t> knife_glove_info =
@@ -87,21 +145,60 @@ void features::skins::create()
 
 void features::skins::load()
 {
-	PWSTR pathToDocuments;
-	std::filesystem::path path;
-	if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_Documents, 0, NULL, &pathToDocuments)))
+	PWSTR path_to_doc;
+	std::filesystem::path path_to_main;
+	std::filesystem::path path_to_skins;
+	if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_Documents, 0, NULL, &path_to_doc)))
 	{
-		path = pathToDocuments;
-		path /= "overflow";
-		path /= "skins";
-		CoTaskMemFree(pathToDocuments);
+		path_to_main = path_to_doc;
+		path_to_main /= "overflow";
+		path_to_skins = path_to_main;
+		path_to_skins /= "skins";
+		CoTaskMemFree(path_to_doc);
 	}
 
-	std::ifstream in{ path / "skins" };
+	// load skins
+	std::ifstream in_skins{ path_to_skins / "skins" };
 	file_skins.clear();
-	file_skins.append((std::istreambuf_iterator<char>(in)), (std::istreambuf_iterator<char>()));
-	in.close();
+	file_skins.append((std::istreambuf_iterator<char>(in_skins)), (std::istreambuf_iterator<char>()));
+	in_skins.close();
 	file_skins.erase(std::remove(file_skins.begin(), file_skins.end(), '\n'), file_skins.end());
+	
+	std::ifstream file{ path_to_main / "items" };
+	std::string weapon_skins_list;
+	weapon_skins_list.append((std::istreambuf_iterator<char>(file)), (std::istreambuf_iterator<char>()));
+	weapon_skins_list.erase(0, 3); // removes weird 3 charchters at begginginggg ggegsgGseggsgs fuck
+
+	for (auto it = weapon_skin_quality_list.begin(); it != weapon_skin_quality_list.end(); ++it)
+	{
+		auto weapon_left = weapon_skins_list.find("["); // [___
+		auto weapon_right = weapon_skins_list.find("]", weapon_left); // ___]
+		if (weapon_left != std::string::npos && weapon_right != std::string::npos)
+		{
+			auto weapon = weapon_skins_list.substr(weapon_left + 1, weapon_right - weapon_left - 1);
+			weapon_skins_list.erase(0, weapon_right + 1);
+
+			auto opening_top = weapon_skins_list.find("{"); // {___
+			auto opening_bottom = weapon_skins_list.find("}"); // {___
+			auto skins_list = weapon_skins_list.substr(opening_top + 1, opening_bottom - opening_top - 1);
+			skins_list.erase(0, 1); // removes empty line
+
+			std::vector<std::pair<std::string, std::string>> skins_list_vector;
+			std::istringstream skins_stream{ skins_list };
+			std::string line{};
+			while (std::getline(skins_stream, line))
+			{
+				auto middle = line.find(":");
+				auto skin_name = line.substr(0, middle);
+				auto skin_quality = line.substr(middle + 1, line.length());
+				skins_list_vector.push_back(std::pair<std::string, std::string>{skin_name, skin_quality});
+			}
+
+			it->second = skins_list_vector;
+		}
+	}
+	
+	file.close();
 }
 
 void features::skins::save()
@@ -171,6 +268,59 @@ void features::skins::replace_paint_model_kit(int item_definition_index, int pai
 					file_skins.replace(pos_first_mid + 1, pos_skin - pos_first_mid - 1, std::to_string(paint_kit));
 }
 
+std::vector<std::pair<std::string, std::pair<int, int>>> features::skins::get_weapon_skins(int item_index)
+{
+	if (!item_index)
+		return {};
+
+	// sort all weapons so we can identify the paint kit id
+	std::pair<std::vector<std::string>, std::vector<int>> paint_kit_list;
+	for (auto skin : parser_skins)
+	{
+		paint_kit_list.first.push_back(skin.name);
+		paint_kit_list.second.push_back(skin.id);
+	}
+	
+	std::vector<std::pair<std::string, std::pair<int, int>>> new_list{};
+	// find the vector
+	auto pair = std::find_if(weapon_skin_quality_list.begin(), weapon_skin_quality_list.end(),
+		[=](std::pair<int, std::vector<std::pair<std::string, std::string>>> const& b) {
+			return b.first == item_index;
+		});
+	for (auto list : pair->second)
+	{
+		int index;
+		if (list.first == "Vanilla")
+			index = 0;
+		else
+		{
+			auto it = std::find(paint_kit_list.first.begin(), paint_kit_list.first.end(), list.first);
+			index = std::distance(paint_kit_list.first.begin(), it);
+		}
+
+		if (list.second == "White")
+			new_list.push_back(std::pair<std::string, std::pair<int, int>>{list.first, std::pair<int, int>{paint_kit_list.second.at(index), CONSUMER}});
+		else if (list.second == "Light Blue")
+			new_list.push_back(std::pair<std::string, std::pair<int, int>>{list.first, std::pair<int, int>{paint_kit_list.second.at(index), INDUSTRIAL}});
+		else if (list.second == "Blue")
+			new_list.push_back(std::pair<std::string, std::pair<int, int>>{list.first, std::pair<int, int>{paint_kit_list.second.at(index), MIL_SPEC}});
+		else if (list.second == "Purple")
+			new_list.push_back(std::pair<std::string, std::pair<int, int>>{list.first, std::pair<int, int>{paint_kit_list.second.at(index), RESTRICTED}});
+		else if (list.second == "Pink")
+			new_list.push_back(std::pair<std::string, std::pair<int, int>>{list.first, std::pair<int, int>{paint_kit_list.second.at(index), CLASSIFIED}});
+		else if (list.second == "Red")
+			new_list.push_back(std::pair<std::string, std::pair<int, int>>{list.first, std::pair<int, int>{paint_kit_list.second.at(index), COVERT}});
+		else if (list.second == "Yellow")
+			new_list.push_back(std::pair<std::string, std::pair<int, int>>{list.first, std::pair<int, int>{paint_kit_list.second.at(index), RARE}});
+	}
+
+	// if knife move vanilla skin to front
+	if (item_index == menu.knife_model) 
+		std::swap(new_list.front(), new_list.back());
+
+	return new_list;
+}
+
 void features::skins::run()
 {
 	if (!interfaces::engine->is_in_game() || !interfaces::engine->is_connected())
@@ -230,14 +380,18 @@ void features::skins::run()
 					view_model->view_model_index() = interfaces::model_info->get_model_index(info->model);
 				}
 				weapon->model_index() = interfaces::model_info->get_model_index(info->model);
-				weapon->world_model_handle() = interfaces::model_info->get_model_index(info->model) + 1;
+
+				auto world_model = reinterpret_cast<attributable_item_t*>(interfaces::entity_list->get_client_entity_handle(view_model_weapon->world_model_handle()));
+				if (world_model)
+					world_model->model_index() = interfaces::model_info->get_model_index(info->model) + 1;
+
 				weapon->entity_quality() = 3;
 			}
 			weapon->original_owner_xuid_low() = 0;
 			weapon->original_owner_xuid_high() = 0;
-			weapon->fallback_wear() = 0;
 			weapon->fallback_seed() = 661;
 			weapon->item_id_high() = -1;
+			weapon->fallback_wear() = 0;
 		}
 	}
 }

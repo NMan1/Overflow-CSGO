@@ -1,7 +1,7 @@
 #pragma once
 #include "../../../dependencies/common_includes.hpp"
 #include <vector>
-struct paint_kit {
+struct paint_kit { 
 	int id;
 	std::string name;
 	bool operator < (const paint_kit& other) {
