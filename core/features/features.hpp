@@ -20,6 +20,7 @@ namespace features
 		void thirdperson();
 		void auto_pistol(c_usercmd* cmd);
 		void quick_peak(c_usercmd* cmd);
+		void shoot_gun(c_usercmd* cmd);
 		void draw_start_pos();
 		void set_clan_tag(const char* tag);
 		void animated_clan_tag(const char* tag);

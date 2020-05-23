@@ -253,6 +253,16 @@ public:
 		std::pair<int, bool> movement_blocker;
 		std::pair<int, bool> crouch_blocker;
 		std::pair<int, bool> fake_duck;
+		bool dropped_weapon_esp;
+		bool dropped_weapon_esp_icon;
+		bool dropped_weapon_esp_distance;
+		float f_dropped_weapon_icon_color[4] = { 1.f, 1.f, 1.f, 1.f };
+		color dropped_weapon_icon_color_clr = color(255, 105, 255);
+		bool movement_block_toggle;
+		bool crouch_blocker_toggle;
+		bool fake_duck_toggle;
+		bool shoot_thrown_guns_toggle;
+		std::pair<int, bool> shoot_thrown_guns;
 	};
 	Config config;
 

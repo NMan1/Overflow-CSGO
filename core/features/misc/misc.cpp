@@ -304,6 +304,49 @@ void features::misc::quick_peak(c_usercmd* cmd)
 	}
 }
 
+void features::misc::shoot_gun(c_usercmd* cmd)
+{
+	player_t* best_entity = nullptr;
+	for (int i = 1; i < interfaces::entity_list->get_highest_index(); i++)
+	{
+		auto entity = reinterpret_cast<player_t*>(interfaces::entity_list->get_client_entity(i));
+		
+		if (!entity)
+			continue;
+
+		if (entity->is_player())
+			continue;
+
+		if (!entity->client_class()->class_id)
+			continue;
+
+		auto model_name = interfaces::model_info->get_model_name(entity->model());
+		if (strstr(model_name, "models/weapons/w_") && strstr(model_name, "_dropped.mdl"))
+		{
+			float distance;
+			float best_distance = FLT_MAX;
+
+			auto delta = math::calculate_angle(csgo::local_player->get_eye_pos(), entity->get_eye_pos(), cmd->viewangles).length();
+			distance = entity->abs_origin().distance_to(csgo::local_player->abs_origin());
+			if (distance < best_distance && delta < 40)
+			{
+				best_entity = entity;
+				best_distance = distance;
+			}
+		}
+	}
+
+	if (best_entity)
+	{
+		auto pos = best_entity->abs_origin();
+		vec3_t pos_2d = {};
+		auto angle = math::calculate_angle(csgo::local_player->get_eye_pos(), pos, cmd->viewangles);
+		angle.normalize();
+
+		cmd->viewangles += angle;
+	}
+}
+ 
 void features::misc::draw_start_pos()
 {
 	if (quick_peck_start_pos.x != NULL && quick_peck_start_pos.y != NULL && quick_peck_start_pos.z != NULL)

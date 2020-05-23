@@ -208,7 +208,7 @@ bool __fastcall hooks::create_move::hook(void* ecx, void* edx, int input_sample_
 	if (menu.config.rank_revealer && (cmd->buttons & in_score) != 0)
 		interfaces::client->dispatch_user_message(cs_um_serverrankrevealall, 0, 0, nullptr);
 	
-	if (menu.config.fake_duck.second)
+	if (menu.config.fake_duck.second && menu.config.fake_duck_toggle)
 		interfaces::engine->get_net_channel_info()->choked_packets <= 7 ? cmd->buttons &= ~in_duck : cmd->buttons |= in_duck;
 
 	if (menu.config.misc)
@@ -230,6 +230,9 @@ bool __fastcall hooks::create_move::hook(void* ecx, void* edx, int input_sample_
 			interfaces::console->get_convar("weapon_debug_spread_show")->set_value(3);
 		else
 			interfaces::console->get_convar("weapon_debug_spread_show")->set_value(0);
+
+		if (menu.config.shoot_thrown_guns_toggle && menu.config.shoot_thrown_guns.second)
+			features::misc::shoot_gun(cmd);
 	}
 
 	if (menu.config.misc)
@@ -265,10 +268,10 @@ bool __fastcall hooks::create_move::hook(void* ecx, void* edx, int input_sample_
 
 	if (!menu.menu_opened)
 	{
-		if (menu.config.movement_blocker.second)
+		if (menu.config.movement_blocker.second && menu.config.movement_block_toggle)
 			features::misc::movement_blocker(cmd);
 
-		if (menu.config.crouch_blocker.second)
+		if (menu.config.crouch_blocker.second && menu.config.crouch_blocker_toggle)
 			features::misc::crouch_blocker(cmd);
 	}
 
@@ -558,6 +561,9 @@ LRESULT __stdcall hooks::WndProc(HWND hwnd, UINT message, WPARAM wparam, LPARAM 
 
 	if (GetAsyncKeyState(menu.config.fake_duck.first) & 1)
 		menu.config.fake_duck.second = !menu.config.fake_duck.second;
+
+	if (GetAsyncKeyState(menu.config.shoot_thrown_guns.first) & 1)
+		menu.config.shoot_thrown_guns.second = !menu.config.shoot_thrown_guns.second;
 
 	if (GetAsyncKeyState(menu.config.quick_peak_pair.first) & 1)
 		menu.config.do_quick_peek = !menu.config.do_quick_peek;

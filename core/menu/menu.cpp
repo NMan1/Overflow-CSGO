@@ -488,6 +488,7 @@ void update_colors()
 	menu.config.wep_icon_clr = color(menu.config.f_wep_icon[0] * 255, menu.config.f_wep_icon[1] * 255, menu.config.f_wep_icon[2] * 255, menu.config.f_wep_icon[3] * 255);
 	menu.config.xqz_clr = color(menu.config.f_xqz_clr[0] * 255, menu.config.f_xqz_clr[1] * 255, menu.config.f_xqz_clr[2] * 255, menu.config.f_xqz_clr[3] * 255);
 	menu.config.sleeve_chams_clr = color(menu.config.f_sleeve_chams[0] * 255, menu.config.f_sleeve_chams[1] * 255, menu.config.f_sleeve_chams[2] * 255, menu.config.f_sleeve_chams[3] * 255);
+	menu.config.dropped_weapon_icon_color_clr = color(menu.config.f_dropped_weapon_icon_color[0] * 255, menu.config.f_dropped_weapon_icon_color[1] * 255, menu.config.f_dropped_weapon_icon_color[2] * 255, menu.config.f_dropped_weapon_icon_color[3] * 255);
 }
 
 void Menu::render()
@@ -925,6 +926,12 @@ void Menu::visuals_tab()
 	{		
 		ImGui::Custom::ChildSettingsInside(8, active);
 		ImGui::Checkbox("Bomb Esp", &menu.config.bomb_esp);
+		ImGui::Checkbox("Dropped Weapons Esp", &menu.config.dropped_weapon_esp);
+		ImGui::SameLine();
+		ImGui::SetCursorPosX(399 - 150);
+		ImGui::Checkbox("Icon", &menu.config.dropped_weapon_esp_icon);
+		ImGui::ColorEdit4("icon clr", menu.config.f_dropped_weapon_icon_color, ImGuiColorEditFlags_NoInputs);
+		ImGui::Checkbox("Show Distance", &menu.config.dropped_weapon_esp_distance);
 	} ImGui::EndChild(true, menu.font_child_title, main_red);
 	ImGui::Custom::ChildSettingsEnd();	
 
@@ -976,22 +983,30 @@ void Menu::misc_tab()
 		ImGui::SetCursorPosX(399 - 175);
 		ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 5);
 		ImGui::Checkbox("No Scope", &menu.config.no_scope);
-		ImGui::Checkbox("Movement Blocker", &menu.config.movement_blocker.second);
+		ImGui::Checkbox("Movement Blocker", &menu.config.movement_block_toggle);
 		ImGui::SameLine();
 		ImGui::SetCursorPosX(399 - 163);
 		ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 8);
 		ImGui::Hotkey("##KeyMoivement", &menu.config.movement_blocker.first, ImVec2(150, 30));		
-		ImGui::Checkbox("Crouch Blocker", &menu.config.crouch_blocker.second);
+		ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 8);
+		ImGui::Checkbox("Crouch Blocker", &menu.config.crouch_blocker_toggle);
 		ImGui::SameLine();
 		ImGui::SetCursorPosX(399 - 163);
 		ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 2);
-		ImGui::Hotkey("##CrocuhMovm", &menu.config.crouch_blocker.first, ImVec2(150, 30));		
-		ImGui::Checkbox("Fake Duck", &menu.config.fake_duck.second);
+		ImGui::Hotkey("##CrocuhMovm", &menu.config.crouch_blocker.first, ImVec2(150, 30));	
+		ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 2);
+		ImGui::Checkbox("Fake Duck", &menu.config.fake_duck_toggle);
 		ImGui::SameLine();
 		ImGui::SetCursorPosX(399 - 163);
 		ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 2);
 		ImGui::Hotkey("##fakeduckkey", &menu.config.fake_duck.first, ImVec2(150, 30));
 		ImGui::Checkbox("Rank Revealer", &menu.config.rank_revealer);
+		ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 8);
+		ImGui::Checkbox("Shoot Thrown Weapons", &menu.config.shoot_thrown_guns_toggle); // why? Why not bitch :)
+		ImGui::SameLine();
+		ImGui::SetCursorPosX(399 - 163);
+		ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 2);
+		ImGui::Hotkey("##shooothtrown", &menu.config.shoot_thrown_guns.first, ImVec2(150, 30));
 	} ImGui::EndChild(true, menu.font_child_title, main_red);
 	ImGui::Custom::ChildSettingsEnd();
 

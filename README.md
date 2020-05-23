@@ -18,8 +18,8 @@ Injecting Steps:
 
 In the future ill remove the need for manually creating the directory 
 
-# GIf:
-![menu gif](gif.gif)
+# Gif:
+![Alt Text](https://media.giphy.com/media/vFKqnCdLPNOKc/giphy.gif)
 
 # Pictures:
 

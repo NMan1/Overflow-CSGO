@@ -117,7 +117,6 @@ void features::visuals::render_esp()
 				render::draw_outline(bbox.x + 1, bbox.y + 1, bbox.w - 2, bbox.h-+ 2, (entity->team() == local_player->team() ? color(10, 255, 10) : menu.config.box_outline_clr));
 		}
 
-
 		if (menu.config.corner_box)
 		{
 			if (menu.config.corner_box_outline)
@@ -305,6 +304,66 @@ void update_spectators()
 	menu.spectators = Name;
 }
 
+void bomb_esp(player_t* entity)
+{
+	if (entity->client_class()->class_id == class_ids::cplantedc4 && entity->c4_is_ticking() && !entity->c4_is_defused())
+	{
+		auto explode_time = entity->c4_blow_time() - (interfaces::globals->interval_per_tick * csgo::local_player->get_tick_base()); // 40 - 0
+		auto defuse_countdown = entity->c4_defuse_countdown() - (interfaces::globals->interval_per_tick * csgo::local_player->get_tick_base()); // 10 - 0 or 5 - 0
+
+		char time_to_explode[64]; sprintf_s(time_to_explode, "%.1f", explode_time);
+		char time_to_defuse[64]; sprintf_s(time_to_defuse, "%.1f", defuse_countdown);
+
+		if (explode_time > 0)
+		{
+			auto ratio_explode = (explode_time / entity->c4_timer_length()) * menu.screen_x;
+			auto lenght = entity->has_defuser() ? 5 : 10;
+			auto ratio_defuse = (float)(defuse_countdown / lenght) * (float)menu.screen_x;
+
+			render::draw_filled_rect(0, 0, ratio_explode, 10, color(255, 35, 205));
+			render::draw_text_string(menu.screen_x / 2, -2, render::fonts::verdana_font, time_to_explode, true, color(255, 255, 255));
+
+			if (!entity)
+				return;
+
+			if (entity->c4_gets_defused() > 0)
+			{
+				render::draw_filled_rect(0, 10, ratio_defuse, 10, color(38, 255, 205));
+				render::draw_text_string(menu.screen_x / 2, 8, render::fonts::verdana_font, time_to_defuse, true, color(255, 255, 255));
+			}
+		}
+	}
+}
+
+void dopped_weapons(player_t* entity)
+{
+	if (entity->is_player())
+		return;
+
+	if (!entity->client_class()->class_id)
+		return;
+
+	auto model_name = interfaces::model_info->get_model_name(entity->model());
+	if (strstr(model_name, "models/weapons/w_") && strstr(model_name, "_dropped.mdl"))
+	{
+		auto pos = entity->origin();
+		vec3_t pos_2d = {};
+		if (interfaces::debug_overlay->world_to_screen(pos, pos_2d))
+		{
+			if (menu.config.dropped_weapon_esp_icon)
+				render::draw_text_string(pos_2d.x, pos_2d.y, render::fonts::weapon_font, reinterpret_cast<weapon_t*>(entity)->get_icon(), true, menu.config.dropped_weapon_icon_color_clr);
+			else
+				render::draw_text_string(pos_2d.x, pos_2d.y, render::fonts::verdana_font_small, clean_item_name(reinterpret_cast<weapon_t*>(entity)->get_weapon_data()->m_szWeaponName), true, color(255, 255, 255));
+
+			if (menu.config.dropped_weapon_esp_distance)
+			{
+				auto distance = std::to_string(csgo::local_player->origin().distance_to(entity->origin()));
+				render::draw_text_string(pos_2d.x, pos_2d.y + 25, render::fonts::verdana_font_small, distance.substr(0, distance.find(".") + 2), true, color(255, 255, 255));
+			}
+		}
+	}
+}
+
 void features::visuals::render_visuals()
 {
 	if (!csgo::local_player)
@@ -341,35 +400,10 @@ void features::visuals::render_visuals()
 			continue;
 
 		if (menu.config.bomb_esp)
-		{
-			if (entity->client_class()->class_id == class_ids::cplantedc4 && entity->c4_is_ticking() && !entity->c4_is_defused())
-			{
-				auto explode_time = entity->c4_blow_time() - (interfaces::globals->interval_per_tick * csgo::local_player->get_tick_base()); // 40 - 0
-				auto defuse_countdown = entity->c4_defuse_countdown() - (interfaces::globals->interval_per_tick * csgo::local_player->get_tick_base()); // 10 - 0 or 5 - 0
+			bomb_esp(entity);
 
-				char time_to_explode[64]; sprintf_s(time_to_explode, "%.1f", explode_time);//Text we gonna display for explosion
-				char time_to_defuse[64]; sprintf_s(time_to_defuse, "%.1f", defuse_countdown);//Text we gonna display for defuse
-
-				if (explode_time > 0)
-				{
-					auto ratio_explode = (explode_time / entity->c4_timer_length()) * menu.screen_x;
-					auto lenght = entity->has_defuser() ? 5 : 10;
-					auto ratio_defuse = (float)(defuse_countdown / lenght) * (float)menu.screen_x;
-					
-					render::draw_filled_rect(0, 0, ratio_explode, 10, color(255, 35, 205));
-					render::draw_text_string(menu.screen_x / 2, -2, render::fonts::verdana_font, time_to_explode, true, color(255, 255, 255));
-
-					if (!entity)
-						continue;
-
-					if (entity->c4_gets_defused() > 0)
-					{
-						render::draw_filled_rect(0, 10, ratio_defuse, 10, color(38, 255, 205));
-						render::draw_text_string(menu.screen_x / 2, 8, render::fonts::verdana_font, time_to_defuse, true, color(255, 255, 255));
-					}
-				}
-			}
-		}
+		if (menu.config.dropped_weapon_esp)
+			dopped_weapons(entity);
 	}
 
 	nightmode();
