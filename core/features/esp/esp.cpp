@@ -346,7 +346,7 @@ void dopped_weapons(player_t* entity)
 	auto model_name = interfaces::model_info->get_model_name(entity->model());
 	if (strstr(model_name, "models/weapons/w_") && strstr(model_name, "_dropped.mdl"))
 	{
-		auto pos = entity->origin();
+		auto pos = entity->abs_origin();
 		vec3_t pos_2d = {};
 		if (interfaces::debug_overlay->world_to_screen(pos, pos_2d))
 		{
@@ -361,6 +361,39 @@ void dopped_weapons(player_t* entity)
 				render::draw_text_string(pos_2d.x, pos_2d.y + 25, render::fonts::verdana_font_small, distance.substr(0, distance.find(".") + 2), true, color(255, 255, 255));
 			}
 		}
+	}
+}
+
+void chicken_esp(player_t* entity)
+{
+	if (entity->is_player())
+		return;
+
+	if (entity->client_class()->class_id != class_ids::cchicken)
+		return;
+
+	vec3_t pos_2d;
+	if (interfaces::debug_overlay->world_to_screen(entity->abs_origin(), pos_2d))
+	{
+		box bbox;
+		if (!get_playerbox(entity, bbox))
+			return;
+
+		auto origin = entity->abs_origin();
+		origin.x -= (bbox.w / 2);
+		origin.y -= (bbox.w / 2);
+		origin.z -= bbox.h - 50;
+		
+		static float rainbow;
+		rainbow += 0.005f;
+
+		if (rainbow > 1.f) 
+			rainbow = 0.f;
+
+		static color clr;
+		clr.random_color((int)(csgo::local_player->get_tick_base() * interfaces::globals->interval_per_tick * 2.f));
+		render::draw_3d_cube(10, csgo::local_player->eye_angles(), entity->abs_origin(), clr);
+		render::draw_text_string(pos_2d.x, pos_2d.y+15, render::fonts::verdana_font_small, "chicken", true, clr);
 	}
 }
 
@@ -403,7 +436,13 @@ void features::visuals::render_visuals()
 			bomb_esp(entity);
 
 		if (menu.config.dropped_weapon_esp)
+			dopped_weapons(entity);		
+
+		if (menu.config.dropped_weapon_esp)
 			dopped_weapons(entity);
+
+		if (menu.config.chicken_esp)
+			chicken_esp(entity);
 	}
 
 	nightmode();

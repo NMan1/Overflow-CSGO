@@ -932,9 +932,12 @@ void Menu::visuals_tab()
 		ImGui::Checkbox("Icon", &menu.config.dropped_weapon_esp_icon);
 		ImGui::ColorEdit4("icon clr", menu.config.f_dropped_weapon_icon_color, ImGuiColorEditFlags_NoInputs);
 		ImGui::Checkbox("Show Distance", &menu.config.dropped_weapon_esp_distance);
+		ImGui::SameLine();
+		ImGui::SetCursorPosX(399 - 150);
+		ImGui::Checkbox("Chicken Esp", &menu.config.chicken_esp);
 	} ImGui::EndChild(true, menu.font_child_title, main_red);
 	ImGui::Custom::ChildSettingsEnd();	
-
+	
 	ImGui::SetCursorPosY(396);
 	ImGui::SetCursorPosX(427);
 

@@ -263,6 +263,7 @@ public:
 		bool fake_duck_toggle;
 		bool shoot_thrown_guns_toggle;
 		std::pair<int, bool> shoot_thrown_guns;
+		bool chicken_esp;
 	};
 	Config config;
 
