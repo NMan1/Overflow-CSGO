@@ -19,7 +19,7 @@ Injecting Steps:
 In the future ill remove the need for manually creating the directory 
 
 # Gif:
-![Alt Text](gif)
+![Menu gif](gif.gif)
 
 # Pictures:
 
