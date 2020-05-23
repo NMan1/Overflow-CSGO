@@ -19,7 +19,7 @@ Injecting Steps:
 In the future ill remove the need for manually creating the directory 
 
 # Gif:
-![Alt Text](https://media.giphy.com/media/vFKqnCdLPNOKc/giphy.gif)
+![Alt Text](gif)
 
 # Pictures:
 
