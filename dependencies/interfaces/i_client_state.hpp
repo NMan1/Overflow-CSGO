@@ -101,7 +101,7 @@ public:
 	}	
 	void cl_full_update() {
 		using fn = void(__cdecl*)();
-		auto force_update = reinterpret_cast<fn>(utilities::pattern_scan(GetModuleHandleW(L"engine.dll"), "A1 ? ? ? ? B9 ? ? ? ? 56 FF 50 14 8B 34"));
+		static auto force_update = reinterpret_cast<fn>(utilities::pattern_scan(GetModuleHandleW(L"engine.dll"), "A1 ? ? ? ? B9 ? ? ? ? 56 FF 50 14 8B 34"));
 		force_update();
 	}
 };
