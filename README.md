@@ -14,6 +14,7 @@ Injecting Steps:
 4. Build in x86 and manual map.
 5. Add -disable_d3d9ex in steam csgo launch options for skins to not be black
 
+# Notice
 **If you crash on injection debug it yourself. Dont spam this repo with issues. I wont help you (I will if you dont ask a stupid question), if you cant attach VS's debugger and fix it in 1 min u shouldn't be using this anyways.**
 
 In the future ill remove the need for manually creating the directory 
