@@ -1,5 +1,5 @@
 # Overflow-CSGO
-# Internal CSGO cheat - work in progress
+# Internal CSGO cheat - work in progress - menu re-design coming soon
 #### I work on this when im bored so there may or may not be updates. Its goal is to be an HvH cheat but currently its only got legit stuff.
 
 Written in snake case (for the most part, %95)
