@@ -1,5 +1,5 @@
 # Overflow-CSGO
-# Internal CSGO cheat - work in progress
+# Internal CSGO cheat - work in progress - menu re-design coming soon
 #### I work on this when im bored so there may or may not be updates. Its goal is to be an HvH cheat but currently its only got legit stuff.
 
 Written in snake case (for the most part, %95)
@@ -7,19 +7,23 @@ Written in snake case (for the most part, %95)
 Base used:
 https://github.com/designer1337/csgo-cheat-base
 
-Injecting Steps:
+# Injecting Steps:
 1. Download the git and install the included .tff font icon file
 2. go to, C:\Users\your name\Documents and create a folder called "overflow" with two folders inside, skins and config. Then copy and paste the skins and defualt file into those respective folders. Move the items file to the base overflow directory (not in the config or skin folder)
 3. add the Default file config included in the git to that folder.
 4. Build in x86 and manual map.
-5. Add -disable_d3d9ex in steam csgo launch options for skins to not be black
+~~5. Add -disable_d3d9ex in steam csgo launch options for skins to not be black~~  Fixed
 
-**If you crash on injection debug it yourself. Dont spam this repo with issues. I wont help you (I will if you dont ask a stupid question), if you cant attach VS's debugger and fix it in 1 min u shouldn't be using this anyways.**
+# Known Issues
+- List Leaves hook with 'disable occulusion' causes models to be invisible. (used to work then broke after update)
 
-In the future ill remove the need for manually creating the directory 
+# Paster Notice
+- **If you crash on injection debug it yourself. Dont spam this repo with issues. I wont help you (I will if you dont ask a stupid question), if you cant attach VS's debugger and fix it in 1 min u shouldn't be using this anyways.**
+
+- In the future ill remove the need for manually creating the directory 
 
 # Gif:
-![Alt Text](https://media.giphy.com/media/vFKqnCdLPNOKc/giphy.gif)
+![Menu gif](gif.gif)
 
 # Pictures:
 
