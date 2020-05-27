@@ -501,7 +501,7 @@ void Menu::render()
 		ImGui::PopStyleColor();
 		ImGui::End();
 	}
-
+	
 	ImGui::SetNextWindowSize(ImVec2(840, 500));
 	ImGui::SetNextWindowPos(ImVec2((menu.screen_x - 840) * .5, (menu.screen_y - 500) * .5), ImGuiCond_Once);
 	ImGui::Begin("Overflow", &menu.menu_opened, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar |  ImGuiWindowFlags_NoScrollbar);
@@ -1151,6 +1151,8 @@ void Menu::skins_tab()
 	{
 		if (ImGui::Button("Update", ImVec2(68, 30)))
 		{
+			if (menu.weapon_index != WEAPON_KNIFE || menu.weapon_index != WEAPON_KNIFE_T)
+				menu.knife_model = -1;
 			features::skins::replace_paint_model_kit(menu.weapon_index, menu.skin_index, menu.knife_model);
 			force_update = true;
 		}		
@@ -1218,7 +1220,6 @@ void Menu::settings_tab()
 			else
 				::ShowWindow(::GetConsoleWindow(), SW_HIDE);			
 		}
-
 	} ImGui::EndChild(true, menu.font_child_title, main_red);
 	ImGui::PopStyleVar();
 

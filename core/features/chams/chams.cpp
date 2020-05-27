@@ -103,7 +103,7 @@ void custom_materials()
 	)#";
 }
 
-void features::visuals::dme_chams_run(hooks::dme::fn original, void* thisptr, void* context, void* state, const model_render_info_t& info, matrix3x4_t* custom_bone_to_world)
+void features::visuals::dme_chams_run(hooks::dme::fn original, void* thisptr, void* context, void* state, const model_render_info_t& info, matrix_t* custom_bone_to_world)
 {
 	if (!menu.config.chams)
 		return original(thisptr, context, state, info, custom_bone_to_world);

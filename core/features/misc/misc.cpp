@@ -344,6 +344,7 @@ void features::misc::shoot_gun(c_usercmd* cmd)
 		angle.normalize();
 
 		cmd->viewangles += angle;
+		cmd->buttons |= in_attack;
 	}
 }
  

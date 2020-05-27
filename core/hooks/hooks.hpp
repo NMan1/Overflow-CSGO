@@ -25,8 +25,8 @@ namespace hooks
 	}		
 
 	namespace dme {
-		using fn = void(__thiscall*)(void*, void*, void*, const model_render_info_t&, matrix3x4_t*);
-		void __fastcall hook(void* thisptr, void* edx, void* ctx, void* state, const model_render_info_t& info, matrix3x4_t* custom_bone_to_world);
+		using fn = void(__thiscall*)(void*, void*, void*, const model_render_info_t&, matrix_t*);
+		void __fastcall hook(void* thisptr, void* edx, void* ctx, void* state, const model_render_info_t& info, matrix_t* custom_bone_to_world);
 	}	
 
 	namespace sceneend {
