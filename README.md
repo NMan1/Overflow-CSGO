@@ -8,7 +8,7 @@ Base used:
 https://github.com/designer1337/csgo-cheat-base
 
 # Known pastes
-http://ahamware.net/
+http://ahamware.net/ - owners two discords Aham#2650 & Akira#2386
 
 # Injecting Steps:
 1. Download the git and install the included .tff font icon file
