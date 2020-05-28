@@ -7,6 +7,9 @@ Written in snake case (for the most part, %95)
 Base used:
 https://github.com/designer1337/csgo-cheat-base
 
+# Known pastes
+http://ahamware.net/
+
 # Injecting Steps:
 1. Download the git and install the included .tff font icon file
 2. go to, C:\Users\your name\Documents and create a folder called "overflow" with two folders inside, skins and config. Then copy and paste the skins and defualt file into those respective folders. Move the items file to the base overflow directory (not in the config or skin folder)
